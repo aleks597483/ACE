@@ -1,0 +1,617 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4CE Магазин</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="MainCSS.css">
+</head>
+<body>
+    <header>
+        <div class="menu"></div>
+        <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+            <a href="">Закладки</a>
+            <a href="">Сравнение</a>
+            <a href="BasketHTML.html">Корзина</a>
+            <div>
+                <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
+                8(999)692-19-72
+            </div>
+            <a href="">Самовывоз</a>
+            <a href="">Доставка</a>
+            <a href="">Оплата</a>
+            <a href="#" onclick="event.preventDefault(); openModal();">Вход</a>
+        </nav>
+    </header>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('login')">Вход</button>
+                <button class="tab-btn" onclick="showTab('register')">Регистрация</button>
+            </div>
+
+            <div id="login" class="tab-content">
+                <h3>Вход</h3>
+                <form id="loginForm">
+                    <h2>E-mail</h2>
+                    <input type="email" placeholder="user@server.com" name="email" required><br>
+                    <h2>Пароль</h2>
+                    <input type="password" placeholder="******" name="password" required><br>
+                    <button type="submit">Войти</button>
+                </form>
+            </div>
+            <div id="register" class="tab-content" style="display: none;">
+                <h3>Регистрация</h3>
+                <form id="registerForm">
+                    <h2>Имя</h2>
+                    <input type="text" placeholder="Иван" name="username" required><br>
+                    <h2>Фамилия</h2>
+                    <input type="text" placeholder="Иванов" name="subname" required><br>
+                    <h2>E-mail</h2>
+                    <input type="email" placeholder="user@server.com" name="email" required><br>
+                    <h2>Пароль</h2>
+                    <input type="password" placeholder="******" name="password" required><br>
+                    <button type="submit">Зарегистрироваться</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="main">
+        <aside class="catalog">
+            <h4>магазин игровых товаров</h4>
+            <a href="MainHTML.html">
+                <img src="pictures\4CE.png" class="ACE">
+            </a>
+            <ul>
+                <h3>Каталог</h3>
+                <li>
+                    <a href="">
+                        <img src="pictures\bi_keyboard_black.png" class="catalog-icon">
+                        Игровые клавиатуры
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\cil_mouse_black.png" class="catalog-icon">
+                        Игровые мыши
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\ph_headphones_black.png" class="catalog-icon">
+                        Игровые наушники
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\material-symbols-light_touchpad-mouse-outline-sharp_black.png" class="catalog-icon">
+                        Игровые коврики
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\cil_gamepad_black.png" class="catalog-icon">
+                        Геймпады
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\ic_sharp-monitor_black.png" class="catalog-icon">
+                        Мониторы
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\lucide_webcam_black.png" class="catalog-icon">
+                        Веб-камеры
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\iconoir_microphone_black.png" class="catalog-icon">
+                        Микрофоны
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\mdi_twitch_black.png" class="catalog-icon">
+                        Стримерские товары
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\solar_chair-2-broken_black.png" class="catalog-icon">
+                        Игровые кресла
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\table_black.png" class="catalog-icon">
+                        Игровые столы
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\fa6-brands_xbox_black.png" class="catalog-icon">
+                        Microsoft XBOX
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\fontisto_playstation_black.png" class="catalog-icon">
+                        Sony Playstation
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\simple-icons_nintendoswitch_black.png" class="catalog-icon">
+                        Nintendo
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        <div class="content">
+            <form class="poisk_tovary" action="/search" method="GET">
+                <input type="text" name="query" placeholder="">
+                <button type="submit">НАЙТИ</button>
+            </form>
+            <div class="banner">
+                <div class="banner-track" id="bannerTrack">
+                    <div class="banner-slide"><img src="pictures\RedSquareBanner.png" alt="Баннер 1"></div>
+                    <div class="banner-slide"><img src="pictures\DuckyBanner.png" alt="Баннер 2"></div>
+                    <div class="banner-slide"><img src="pictures\DarkProjectBanner.png" alt="Баннер 3"></div>
+                </div>
+                <div class="banner-buttons">
+                    <button class="banner-button" onclick="moveSlide(-1)">&#10094;</button>
+                    <button class="banner-button" onclick="moveSlide(1)">&#10095;</button>
+                </div>
+
+            </div>
+            <section>
+                <h3>
+                    <img src="pictures\звезда новинки.png" alt="ProductGroupName" class="section-icon">
+                    Новинки
+                </h3>
+                <div class="products-grid">
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Funko POP! Pin Naruto Shippuden Sasuke (Curse Mark).png" alt="Product">
+                            <div class="product-title">Funko POP! Pin Naruto Shippuden Sasuke (Curse Mark)</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\HyperX Dual 3.5 mm to 4 PC Extension Cable.png" alt="Product">
+                            <div class="product-title">HyperX Dual 3.5 mm to 4 PC Extension Cable</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">490₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Zomoplus Aluminum Keycap Nuclear Bomb.png" alt="Product">
+                            <div class="product-title">Zomoplus Aluminum Keycap Nuclear Bomb</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">1990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Zomoplus Aluminum Keycap Airdrop.png" alt="Product">
+                            <div class="product-title">Zomoplus Aluminum Keycap Airdrop</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">1990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Glorious G-Floats Ceramic for Model D-.png" alt="Product">
+                            <div class="product-title">Glorious G-Floats Ceramic for Model D-</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">890₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Ducky Feather BlackWhite Kailh 80M Micro Switches.png" alt="Product">
+                            <div class="product-title">Ducky Feather BlackWhite Kailh 80M Micro Switches</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">3990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Glorious_GMMK_2_Compact_65_White_Barebones.png" alt="Product">
+                            <div class="product-title">Glorious GMMK 2 Compact (65%) White Barebones</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">4990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Drift DR250 Black Green.png" alt="Product">
+                            <div class="product-title">Drift DR250 Black Green</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">19990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Блокнот SK Gaming.png" alt="Product">
+                            <div class="product-title">Блокнот SK Gaming</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">490₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures/Glorious_GMMK_2_Compact_65_Black_Pre_Built_Fox_Linear_Switch.png" alt="Product">
+                            <div class="product-title">Glorious GMMK 2 Compact (65%) Black Pre-Built Fox Linear Switch</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">6990₽</div>
+
+                    </div>
+                </div>
+            </section>
+            <section>
+                <h3>
+                    <img src="pictures\галочка популярных товаров.png" alt="ProductGroupName" class="section-icon">
+                    Лидеры продаж
+                </h3>
+                <div class="products-grid">
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Glorious GPBT Keycaps Ocean.png" alt="Product">
+                            <div class="product-title">Glorious GPBT Keycaps Ocean</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">3490₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Glorious Model I Matte Black.png" alt="Product">
+                            <div class="product-title">Glorious Model I Matte Black</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">3490₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Glorious_GMMK_2_Compact_65_White_Pre_Built_Fox_Linear_Switch.png" alt="Product">
+                            <div class="product-title">Glorious GMMK 2 Compact (65%) White Pre-Built Fox Linear Switch</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">7990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Razer Ornata V3.png" alt="Product">
+                            <div class="product-title">Razer Ornata V3</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">7090₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Razer Basilisk V3.png" alt="Product">
+                            <div class="product-title">Razer Basilisk V3-</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">7490₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Funko POP! Genshin Impact Aether.png" alt="Product">
+                            <div class="product-title">Funko POP! Genshin Impact Aether</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">2090₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Glorious Series One PRO Wireless Forge Centauri (Limited).png" alt="Product">
+                            <div class="product-title">Glorious Series One PRO Wireless Forge Centauri (Limited)</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">9990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Razer BlackWidow V4 Yellow Switch.png" alt="Product">
+                            <div class="product-title">Razer BlackWidow V4 Yellow Switch</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">16990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Red Square Keyrox TKL Equinox.png" alt="Product">
+                            <div class="product-title">Red Square Keyrox TKL Equinox</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">4990₽</div>
+                    </div>
+                    <div class="product">
+                        <a href="">
+                            <img src="pictures\Glorious Model O PRO Wireless Forge Blue Lynx (Limited).png" alt="Product">
+                            <div class="product-title">Glorious Model O PRO Wireless Forge Blue Lynx (Limited)</div>
+                        </a>
+                        <div class="rating" data-rating="0">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <div class="price">9990₽</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <script>
+            let currentIndex = 0;
+            const track = document.getElementById('bannerTrack');
+            const slides = document.querySelectorAll('.banner-slide');
+
+            function moveSlide(direction) {
+                currentIndex += direction;
+                if (currentIndex < 0) currentIndex = slides.length - 1;
+                if (currentIndex >= slides.length) currentIndex = 0;
+                updateBanner();
+            }
+
+            function goToSlide(index) {
+                currentIndex = index;
+                updateBanner();
+            }
+
+            function updateBanner() {
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                const thumbs = document.querySelectorAll('.banner-thumbnail');
+                thumbs.forEach((thumb, idx) => {
+                    thumb.classList.toggle('active', idx === currentIndex);
+                });
+            }
+
+            setInterval(() => moveSlide(1), 5000);
+        </script>
+        <script>
+            document.querySelectorAll('.rating').forEach(rating => {
+                const stars = rating.querySelectorAll('.star');
+
+                stars.forEach(star => {
+                    star.addEventListener('mouseover', () => {
+                        const val = parseInt(star.dataset.value);
+                        highlightStars(rating, val);
+                    });
+
+                    star.addEventListener('mouseout', () => {
+                        const selected = parseInt(rating.dataset.rating);
+                        highlightStars(rating, selected);
+                    });
+
+                    star.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        const val = parseInt(star.dataset.value);
+                        rating.dataset.rating = val;
+                        highlightStars(rating, val);
+                        // здесь можно отправить рейтинг на сервер
+                        console.log(`Пользователь поставил ${val} звёзд`);
+                    });
+                });
+            });
+
+            function highlightStars(container, rating) {
+                const stars = container.querySelectorAll('.star');
+                stars.forEach(star => {
+                    const val = parseInt(star.dataset.value);
+                    star.classList.toggle('selected', val <= rating);
+                });
+            }
+        </script>
+        <script>
+            function openModal() {
+                document.getElementById("modal").style.display = "block";
+            }
+
+            function closeModal() {
+                document.getElementById("modal").style.display = "none";
+            }
+
+            function showTab(tabId) {
+                document.getElementById("login").style.display = "none";
+                document.getElementById("register").style.display = "none";
+
+                const buttons = document.querySelectorAll(".tab-btn");
+                buttons.forEach(btn => btn.classList.remove("active"));
+
+                document.getElementById(tabId).style.display = "block";
+                event.target.classList.add("active");
+            }
+        </script>
+        <script>
+            document.getElementById('registerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const data = {
+                username: this.username.value,
+                subname:  this.subname.value,
+                email: this.email.value,
+                password: this.password.value,
+            };
+
+            fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.text())
+            .then(msg => alert(msg))
+            .catch(err => alert('Ошибка регистрации'));
+            });
+        </script>
+        <script>
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const data = {
+                email: this.email.value,
+                password: this.password.value
+            };
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(text => { throw new Error(text) });
+                }
+                return res.text();
+            })
+            .then(msg => {
+                alert(msg);
+                closeModal();
+            })
+            .catch(err => {
+                alert(err.message || 'Ошибка входа');
+            });
+        });
+        </script>
+</body>
+</html>
