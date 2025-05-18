@@ -24,23 +24,28 @@
             font-weight: bold;
         }
 
-        .top-nav a {
+        .top-nav {
+            text-decoration: none;
+            display: flex;
+            justify-content: space-between; /* Равномерное распределение */
+            flex-grow: 1; /* Занимает все доступное пространство */
+            gap: 90px; /* Фиксированный отступ между элементами */
+            margin: 5px 5px 0px 300px auto; /* Центрирование */
+            max-width: 1200px; /* Максимальная ширина (настройте под ваш дизайн) */
+            padding: 0px; /* Отступы по бокам */
+        }
+
+        .top-nav a, #authSection {
             color: #8A8282;
             text-decoration: none;
-            font-family: Roboto, sans-serif;
-            font-size: 15px;
+            white-space: nowrap; /* Запрет переноса текста */
+            flex-shrink: 0; /* Запрет сжатия элементов */
         }
 
             .top-nav a:hover {
                 color: #ffffff;
                 transition: 0.3s;
             }
-
-        .top-nav span {
-            color: white;
-            font-weight: bold;
-            padding: 0 10px;
-        }
 
         nav {
             flex: 1;
@@ -319,6 +324,13 @@
             border-radius: 10px;
             text-align: center;
         }
+        
+        .form-group {
+            color: #000000;
+            font-family: Roboto, sans-serif;
+            margin-bottom: 15px;
+            text-align: left;
+        }
 
         .close {
             float: right;
@@ -392,3 +404,49 @@
                 height: 50px;
                 display: block;
             }
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #8c00ff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+#authSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#authSection a {
+    color: #8A8282;
+    text-decoration: none;
+    font-family: Roboto, sans-serif;
+    font-size: 15px;
+    margin-right: 10px;
+}
+
+#authSection a:hover {
+    color: #ffffff;
+    transition: 0.3s;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: #8A8282;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+}
+
+.logout-btn:hover {
+    color: #ffffff;
+    transition: 0.3s;
+}
+

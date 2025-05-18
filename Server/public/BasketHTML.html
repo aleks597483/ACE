@@ -1,0 +1,402 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4CE Магазин</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="MainCSS.css">
+    <link rel="stylesheet" href="BasketCSS.css">
+</head>
+<body>
+    <header>
+        <div class="menu"></div>
+        <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+            <a href="">Закладки</a>
+            <a href="">Сравнение</a>
+            <a href="BasketHTML.html">Корзина</a>
+            <div>
+                <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
+                8(952)570-76-95
+            </div>
+            <a href="">Самовывоз</a>
+            <a href="">Доставка</a>
+            <a href="">Оплата</a>
+            <div id="authSection">
+                <a href="#" id="authLink" onclick="event.preventDefault(); openModal();">Вход</a>
+            </div>
+        </nav>
+    </header>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('login')">Вход</button>
+                <button class="tab-btn" onclick="showTab('register')">Регистрация</button>
+            </div>
+
+            <div id="login" class="tab-content">
+                <h3>Вход</h3>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="loginEmail" placeholder="user@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" id="loginPassword" placeholder="******" required>
+                        <span class="password-toggle" onclick="togglePassword('loginPassword')">Показать</span>
+                    </div>
+                    <button type="submit" class="btn-submit">Войти</button>
+                </form>
+            </div>
+
+            <div id="register" class="tab-content" style="display: none;">
+                <h3>Регистрация</h3>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regUsername">Имя</label>
+                        <input type="text" id="regUsername" placeholder="Иван" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regSubname">Фамилия</label>
+                        <input type="text" id="regSubname" placeholder="Иванов" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">E-mail</label>
+                        <input type="email" id="regEmail" placeholder="user@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Пароль</label>
+                        <input type="password" id="regPassword" placeholder="******" minlength="8" required>
+                        <span class="password-toggle" onclick="togglePassword('regPassword')">Показать</span>
+                    </div>
+                    <button type="submit" class="btn-submit">Зарегистрироваться</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="main">
+        <aside class="catalog">
+            <h4>магазин игровых товаров</h4>
+            <a href="MainHTML.html">
+                <img src="pictures\4CE.png" class="ACE">
+            </a>
+            <ul>
+                <h3>Каталог</h3>
+                <li>
+                    <a href="">
+                        <img src="pictures\bi_keyboard_black.png" class="catalog-icon">
+                        Игровые клавиатуры
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\cil_mouse_black.png" class="catalog-icon">
+                        Игровые мыши
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\ph_headphones_black.png" class="catalog-icon">
+                        Игровые наушники
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\material-symbols-light_touchpad-mouse-outline-sharp_black.png" class="catalog-icon">
+                        Игровые коврики
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\cil_gamepad_black.png" class="catalog-icon">
+                        Геймпады
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\ic_sharp-monitor_black.png" class="catalog-icon">
+                        Мониторы
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\lucide_webcam_black.png" class="catalog-icon">
+                        Веб-камеры
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\iconoir_microphone_black.png" class="catalog-icon">
+                        Микрофоны
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\mdi_twitch_black.png" class="catalog-icon">
+                        Стримерские товары
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\solar_chair-2-broken_black.png" class="catalog-icon">
+                        Игровые кресла
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\table_black.png" class="catalog-icon">
+                        Игровые столы
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\fa6-brands_xbox_black.png" class="catalog-icon">
+                        Microsoft XBOX
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\fontisto_playstation_black.png" class="catalog-icon">
+                        Sony Playstation
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        <img src="pictures\simple-icons_nintendoswitch_black.png" class="catalog-icon">
+                        Nintendo
+                        <img src="pictures\Vector 4.png" class="vector-icon">
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        <div class="content">
+            <form class="poisk_tovary" action="/search" method="GET">
+                <input type="text" name="query" placeholder="">
+                <button type="submit">НАЙТИ</button>
+            </form>
+            <div class="basket-container">
+                <h2 class="basket-title">Ваша корзина</h2>
+                
+                <table class="basket-items">
+                    <thead>
+                        <tr>
+                            <th>Товар</th>
+                            <th>Цена</th>
+                            <th>Количество</th>
+                            <th>Сумма</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Пример товара в корзине -->
+                        <tr class="basket-item">
+                            <td>
+                                <div style="display: flex; align-items: center;">
+                                    <img src="pictures/keyboard_example.jpg" alt="Игровая клавиатура" class="basket-item-image">
+                                    <div style="margin-left: 15px;">
+                                        <div>Игровая клавиатура Razer BlackWidow</div>
+                                        <div style="color: #666; font-size: 14px;">Артикул: KB-RAZ-001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>7,999 ₽</td>
+                            <td>
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus">-</button>
+                                    <input type="text" class="quantity-input" value="1">
+                                    <button class="quantity-btn plus">+</button>
+                                </div>
+                            </td>
+                            <td>7,999 ₽</td>
+                            <td><span class="remove-btn">Удалить</span></td>
+                        </tr>
+                        
+                        <!-- Второй пример товара -->
+                        <tr class="basket-item">
+                            <td>
+                                <div style="display: flex; align-items: center;">
+                                    <img src="pictures/mouse_example.jpg" alt="Игровая мышь" class="basket-item-image">
+                                    <div style="margin-left: 15px;">
+                                        <div>Игровая мышь Logitech G502</div>
+                                        <div style="color: #666; font-size: 14px;">Артикул: MS-LOG-502</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>5,499 ₽</td>
+                            <td>
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus">-</button>
+                                    <input type="text" class="quantity-input" value="2">
+                                    <button class="quantity-btn plus">+</button>
+                                </div>
+                            </td>
+                            <td>10,998 ₽</td>
+                            <td><span class="remove-btn">Удалить</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="basket-summary">
+                    <div class="total-price">Итого: </div>
+                    <button class="checkout-btn">Оформить заказ</button>
+                </div>
+                
+                <div class="empty-basket">
+                    <p>Ваша корзина пуста</p>
+                    <p>Перейдите в каталог, чтобы добавить товары</p>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+            // Скрипт для работы с корзиной
+            document.addEventListener('DOMContentLoaded', function() {
+                // Обработчики для кнопок изменения количества
+                document.querySelectorAll('.quantity-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const input = this.parentElement.querySelector('.quantity-input');
+                        let value = parseInt(input.value);
+                        
+                        if (this.classList.contains('plus')) {
+                            value++;
+                        } else if (this.classList.contains('minus')) {
+                            value = Math.max(1, value - 1);
+                        }
+                        
+                        input.value = value;
+                        updateBasketTotals();
+                    });
+                });
+                
+                // Обработчики для полей ввода количества
+                document.querySelectorAll('.quantity-input').forEach(input => {
+                    input.addEventListener('change', function() {
+                        let value = parseInt(this.value);
+                        if (isNaN(value) || value < 1) {
+                            this.value = 1;
+                        }
+                        updateBasketTotals();
+                    });
+                });
+                
+                // Обработчики для кнопок удаления
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        this.closest('.basket-item').remove();
+                        updateBasketTotals();
+                        checkEmptyBasket();
+                    });
+                });
+                
+                // Функция обновления итоговых сумм
+                function updateBasketTotals() {
+                    let total = 0;
+                    
+                    document.querySelectorAll('.basket-item').forEach(item => {
+                        const priceText = item.querySelector('td:nth-child(2)').textContent;
+                        const price = parseFloat(priceText.replace(/[^\d.]/g, ''));
+                        const quantity = parseInt(item.querySelector('.quantity-input').value);
+                        const sum = price * quantity;
+                        
+                        item.querySelector('td:nth-child(4)').textContent = sum.toLocaleString('ru-RU') + ' ₽';
+                        total += sum;
+                    });
+                    
+                    document.querySelector('.total-price').textContent = 'Итого: ' + total.toLocaleString('ru-RU') + ' ₽';
+                }
+                
+                // Функция проверки пустой корзины
+                function checkEmptyBasket() {
+                    const items = document.querySelectorAll('.basket-item');
+                    const emptyBasket = document.querySelector('.empty-basket');
+                    const basketTable = document.querySelector('.basket-items');
+                    const basketSummary = document.querySelector('.basket-summary');
+                    
+                    if (items.length === 0) {
+                        if (emptyBasket) emptyBasket.style.display = 'block';
+                        if (basketTable) basketTable.style.display = 'none';
+                        if (basketSummary) basketSummary.style.display = 'none';
+                    } else {
+                        if (emptyBasket) emptyBasket.style.display = 'none';
+                        if (basketTable) basketTable.style.display = 'table';
+                        if (basketSummary) basketSummary.style.display = 'flex';
+                    }
+                }
+                
+                // Инициализация
+                updateBasketTotals();
+                checkEmptyBasket();
+            });
+        </script>
+        <script>
+            document.querySelectorAll('.rating').forEach(rating => {
+                const stars = rating.querySelectorAll('.star');
+
+                stars.forEach(star => {
+                    star.addEventListener('mouseover', () => {
+                        const val = parseInt(star.dataset.value);
+                        highlightStars(rating, val);
+                    });
+
+                    star.addEventListener('mouseout', () => {
+                        const selected = parseInt(rating.dataset.rating);
+                        highlightStars(rating, selected);
+                    });
+
+                    star.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        const val = parseInt(star.dataset.value);
+                        rating.dataset.rating = val;
+                        highlightStars(rating, val);
+                        // здесь можно отправить рейтинг на сервер
+                        console.log(`Пользователь поставил ${val} звёзд`);
+                    });
+                });
+            });
+
+            function highlightStars(container, rating) {
+                const stars = container.querySelectorAll('.star');
+                stars.forEach(star => {
+                    const val = parseInt(star.dataset.value);
+                    star.classList.toggle('selected', val <= rating);
+                });
+            }
+        </script>
+        <script>
+            function openModal() {
+                document.getElementById("modal").style.display = "block";
+            }
+
+            function closeModal() {
+                document.getElementById("modal").style.display = "none";
+            }
+
+            function showTab(tabId) {
+                document.getElementById("login").style.display = "none";
+                document.getElementById("register").style.display = "none";
+
+                const buttons = document.querySelectorAll(".tab-btn");
+                buttons.forEach(btn => btn.classList.remove("active"));
+
+                document.getElementById(tabId).style.display = "block";
+                event.target.classList.add("active");
+            }
+        </script>
+</body>
+</html>

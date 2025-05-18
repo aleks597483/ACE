@@ -9,20 +9,23 @@
 </head>
 <body>
     <header>
-        <div class="menu"></div>
-        <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-            <a href="">Закладки</a>
-            <a href="">Сравнение</a>
-            <a href="BasketHTML.html">Корзина</a>
-            <div>
-                <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
-                8(999)692-19-72
-            </div>
-            <a href="">Самовывоз</a>
-            <a href="">Доставка</a>
-            <a href="">Оплата</a>
-            <a href="#" onclick="event.preventDefault(); openModal();">Вход</a>
-        </nav>
+        <div class="menu">
+            <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                <a href="">Закладки</a>
+                <a href="">Сравнение</a>
+                <a href="BasketHTML.html">Корзина</a>
+                <div style="white-space: nowrap;">
+                    <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
+                    8(952)&nbsp;570-76-95
+                </div>
+                <a href="">Самовывоз</a>
+                <a href="">Доставка</a>
+                <a href="">Оплата</a>
+                <div id="authSection">
+                    <a href="#" id="authLink" onclick="event.preventDefault(); openModal();">Вход</a>
+                </div>
+            </nav>
+        </div>
     </header>
     <div id="modal" class="modal">
         <div class="modal-content">
@@ -36,25 +39,40 @@
             <div id="login" class="tab-content">
                 <h3>Вход</h3>
                 <form id="loginForm">
-                    <h2>E-mail</h2>
-                    <input type="email" placeholder="user@server.com" name="email" required><br>
-                    <h2>Пароль</h2>
-                    <input type="password" placeholder="******" name="password" required><br>
-                    <button type="submit">Войти</button>
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="loginEmail" placeholder="user@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" id="loginPassword" placeholder="******" required>
+                        <span class="password-toggle" onclick="togglePassword('loginPassword')">Показать</span>
+                    </div>
+                    <button type="submit" class="btn-submit">Войти</button>
                 </form>
             </div>
+
             <div id="register" class="tab-content" style="display: none;">
                 <h3>Регистрация</h3>
                 <form id="registerForm">
-                    <h2>Имя</h2>
-                    <input type="text" placeholder="Иван" name="username" required><br>
-                    <h2>Фамилия</h2>
-                    <input type="text" placeholder="Иванов" name="subname" required><br>
-                    <h2>E-mail</h2>
-                    <input type="email" placeholder="user@server.com" name="email" required><br>
-                    <h2>Пароль</h2>
-                    <input type="password" placeholder="******" name="password" required><br>
-                    <button type="submit">Зарегистрироваться</button>
+                    <div class="form-group">
+                        <label for="regUsername">Имя</label>
+                        <input type="text" id="regUsername" placeholder="Иван" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regSubname">Фамилия</label>
+                        <input type="text" id="regSubname" placeholder="Иванов" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">E-mail</label>
+                        <input type="email" id="regEmail" placeholder="user@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Пароль</label>
+                        <input type="password" id="regPassword" placeholder="******" minlength="8" required>
+                        <span class="password-toggle" onclick="togglePassword('regPassword')">Показать</span>
+                    </div>
+                    <button type="submit" class="btn-submit">Зарегистрироваться</button>
                 </form>
             </div>
         </div>
@@ -169,7 +187,7 @@
         </aside>
         <div class="content">
             <form class="poisk_tovary" action="/search" method="GET">
-                <input type="text" name="query" placeholder="">
+                <input type="text" name="query" placeholder="" required>
                 <button type="submit">НАЙТИ</button>
             </form>
             <div class="banner">
@@ -183,6 +201,9 @@
                     <button class="banner-button" onclick="moveSlide(1)">&#10095;</button>
                 </div>
 
+            </div>
+            <div id="searchResults" class="search-results">
+                <!-- Результаты будут вставлены сюда -->
             </div>
             <section>
                 <h3>
@@ -482,136 +503,257 @@
                 </div>
             </section>
         </div>
-        <script>
-            let currentIndex = 0;
+    <script>
+        // Баннер слайдер
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.banner-slide');
+        const totalSlides = slides.length;
+        let slideInterval;
+
+        // Инициализация слайдера
+        function initSlider() {
+            updateSlidePosition();
+            startSlideShow();
+        }
+
+        // Обновление позиции слайда
+        function updateSlidePosition() {
             const track = document.getElementById('bannerTrack');
-            const slides = document.querySelectorAll('.banner-slide');
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
 
-            function moveSlide(direction) {
-                currentIndex += direction;
-                if (currentIndex < 0) currentIndex = slides.length - 1;
-                if (currentIndex >= slides.length) currentIndex = 0;
-                updateBanner();
+        // Переключение слайда
+        function moveSlide(direction) {
+            currentSlide += direction;
+            
+            if (currentSlide < 0) {
+                currentSlide = totalSlides - 1;
+            } else if (currentSlide >= totalSlides) {
+                currentSlide = 0;
+            }
+            
+            updateSlidePosition();
+            resetSlideShow();
+        }
+
+        // Автоматическое переключение
+        function startSlideShow() {
+            slideInterval = setInterval(() => {
+                moveSlide(1);
+            }, 5000);
+        }
+
+        // Сброс таймера автоматического переключения
+        function resetSlideShow() {
+            clearInterval(slideInterval);
+            startSlideShow();
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initSlider);
+
+        // Глобальные переменные
+        let currentUser = null;
+
+        // DOM элементы
+        const modal = document.getElementById('modal');
+        const authSection = document.getElementById('authSection');
+        const authLink = document.getElementById('authLink');
+
+        // Функции модального окна
+        function openModal() {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            resetForms();
+        }
+
+        function showTab(tabId, event = null) {
+            if (event) {
+                event.preventDefault();
             }
 
-            function goToSlide(index) {
-                currentIndex = index;
-                updateBanner();
-            }
-
-            function updateBanner() {
-                track.style.transform = `translateX(-${currentIndex * 100}%)`;
-                const thumbs = document.querySelectorAll('.banner-thumbnail');
-                thumbs.forEach((thumb, idx) => {
-                    thumb.classList.toggle('active', idx === currentIndex);
-                });
-            }
-
-            setInterval(() => moveSlide(1), 5000);
-        </script>
-        <script>
-            document.querySelectorAll('.rating').forEach(rating => {
-                const stars = rating.querySelectorAll('.star');
-
-                stars.forEach(star => {
-                    star.addEventListener('mouseover', () => {
-                        const val = parseInt(star.dataset.value);
-                        highlightStars(rating, val);
-                    });
-
-                    star.addEventListener('mouseout', () => {
-                        const selected = parseInt(rating.dataset.rating);
-                        highlightStars(rating, selected);
-                    });
-
-                    star.addEventListener('click', (event) => {
-                        event.stopPropagation();
-                        const val = parseInt(star.dataset.value);
-                        rating.dataset.rating = val;
-                        highlightStars(rating, val);
-                        // здесь можно отправить рейтинг на сервер
-                        console.log(`Пользователь поставил ${val} звёзд`);
-                    });
-                });
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
 
-            function highlightStars(container, rating) {
-                const stars = container.querySelectorAll('.star');
-                stars.forEach(star => {
-                    const val = parseInt(star.dataset.value);
-                    star.classList.toggle('selected', val <= rating);
+            document.getElementById(tabId).style.display = 'block';
+            if (event) {
+            event.currentTarget.classList.add('active');
+            } else {
+                document.querySelector(`.tab-btn[onclick*="${tabId}"]`).classList.add('active');
+            }
+        }
+
+        function resetForms() {
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        // Обновление UI авторизации
+        function updateAuthUI(isLoggedIn, userData = null) {
+            if (isLoggedIn && userData) {
+                currentUser = userData;
+                const firstLetter = userData.username.charAt(0).toUpperCase();
+                authSection.innerHTML = `
+                    <div class="user-avatar">${firstLetter}</div>
+                    <a href="AccountHTML.html" id="authLink">${userData.username}</a>
+                    <a href="#" id="logoutBtn" class="logout-btn">Выйти</a>
+                `;
+                document.getElementById('logoutBtn').addEventListener('click', logout);
+            } else {
+                currentUser = null;
+                authSection.innerHTML = `
+                    <a href="#" id="authLink" onclick="event.preventDefault(); openModal();">Вход</a>
+                `;
+            }
+        }
+
+        // Выход из системы
+        function logout() {
+            localStorage.removeItem('token');
+            updateAuthUI(false);
+            window.location.reload();
+        }
+
+        // Проверка авторизации при загрузке
+        async function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                updateAuthUI(false);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/get-user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 });
-            }
-        </script>
-        <script>
-            function openModal() {
-                document.getElementById("modal").style.display = "block";
-            }
 
-            function closeModal() {
-                document.getElementById("modal").style.display = "none";
-            }
-
-            function showTab(tabId) {
-                document.getElementById("login").style.display = "none";
-                document.getElementById("register").style.display = "none";
-
-                const buttons = document.querySelectorAll(".tab-btn");
-                buttons.forEach(btn => btn.classList.remove("active"));
-
-                document.getElementById(tabId).style.display = "block";
-                event.target.classList.add("active");
-            }
-        </script>
-        <script>
-            document.getElementById('registerForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const data = {
-                username: this.username.value,
-                subname:  this.subname.value,
-                email: this.email.value,
-                password: this.password.value,
-            };
-
-            fetch('/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.text())
-            .then(msg => alert(msg))
-            .catch(err => alert('Ошибка регистрации'));
-            });
-        </script>
-        <script>
-            document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const data = {
-                email: this.email.value,
-                password: this.password.value
-            };
-
-            fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(res => {
-                if (!res.ok) {
-                    return res.text().then(text => { throw new Error(text) });
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        localStorage.removeItem('token');
+                        throw new Error('Сессия истекла');
+                    }
+                    throw new Error('Ошибка сервера');
                 }
-                return res.text();
-            })
-            .then(msg => {
-                alert(msg);
+
+                const userData = await response.json();
+                updateAuthUI(true, userData);
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
+                alert(error.message);
+                updateAuthUI(false);
+            }
+        }
+
+        // Обработка формы входа
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('Заполните все поля');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка входа');
+                }
+
+                localStorage.setItem('token', data.token);
+                updateAuthUI(true, { username: data.username });
                 closeModal();
-            })
-            .catch(err => {
-                alert(err.message || 'Ошибка входа');
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                alert(error.message);
+            }
+        });
+
+        // Обработка формы регистрации
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                username: document.getElementById('regUsername').value.trim(),
+                subname: document.getElementById('regSubname').value.trim(),
+                email: document.getElementById('regEmail').value.trim(),
+                password: document.getElementById('regPassword').value
+            };
+
+            if (!userData.username || !userData.subname || !userData.email || !userData.password) {
+                alert('Заполните все поля');
+                return;
+            }
+
+            if (userData.password.length < 8) {
+                alert('Пароль должен содержать минимум 8 символов');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка регистрации');
+                }
+
+                alert('Регистрация успешна! Теперь вы можете войти');
+                showTab('login');
+                document.getElementById('loginEmail').value = userData.email;
+                document.getElementById('registerForm').reset();
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                alert(error.message);
+            }
+        });
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            
+            // Закрытие модального окна при клике вне его
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
             });
         });
-        </script>
+    </script>
 </body>
 </html>
