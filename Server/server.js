@@ -225,6 +225,96 @@ app.put('/update-user', authenticateJWT, async (req, res) => {
   }
 });
 
+
+
+// Запуск сервера
+app.listen(PORT, () => {
+  console.log(`Сервер запущен на http://localhost:${PORT}`);
+});
+
+
+// ==================== Поиск товаров ====================
+
+// Полнотекстовый поиск товаров
+app.get('/api/search', async (req, res) => {
+  try {
+    const { query, page = 1, limit = 40 } = req.query;
+    
+    if (!query || query.trim().length < 2) {
+      return res.status(400).json({ 
+        error: 'Поисковый запрос должен содержать минимум 2 символа' 
+      });
+    }
+
+    const offset = (page - 1) * limit;
+    const db = await createDbConnection();
+
+    // Выполняем поиск с полнотекстовым индексом
+
+    const [products] = await db.query(`
+      SELECT 
+        p.*,
+        MATCH(p.product_name, p.description) AGAINST(? IN BOOLEAN MODE) AS relevance
+      FROM products p
+      WHERE MATCH(p.product_name, p.description) AGAINST(? IN BOOLEAN MODE)
+      ORDER BY relevance DESC
+      LIMIT ? OFFSET ?
+    `, [query, query, parseInt(limit), parseInt(offset)]);
+
+    // Получаем общее количество результатов
+    const [[{ total }]] = await db.query(`
+      SELECT COUNT(*) as total
+      FROM products
+      WHERE MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE)
+    `, [query]);
+
+    db.end();
+
+    res.json({
+      success: true,
+      query,
+      page: parseInt(page),
+      total,
+      totalPages: Math.ceil(total / limit),
+      products
+    });
+  } catch (err) {
+    console.error('Ошибка поиска товаров:', err);
+    res.status(500).json({ 
+      success: false,
+      error: 'Ошибка при выполнении поиска' 
+    });
+  }
+});
+
+// Автодополнение поисковых запросов
+app.get('/api/search/suggest', async (req, res) => {
+  try {
+    const { query } = req.query;
+    
+    if (!query || query.trim().length < 2) {
+      return res.json([]);
+    }
+
+    const db = await createDbConnection();
+    
+    const [suggestions] = await db.query(`
+      SELECT product_name 
+      FROM products 
+      WHERE product_name LIKE ?
+      GROUP BY product_name
+      LIMIT 5
+    `, [`%${query}%`]);
+
+    db.end();
+
+    res.json(suggestions.map(s => s.product_name));
+  } catch (err) {
+    console.error('Ошибка автодополнения:', err);
+    res.json([]);
+  }
+});
+
 // Обработка 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Не найдено' });
@@ -234,9 +324,4 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('Ошибка:', err.stack);
   res.status(500).json({ error: 'Внутренняя ошибка сервера' });
-});
-
-// Запуск сервера
-app.listen(PORT, () => {
-  console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
