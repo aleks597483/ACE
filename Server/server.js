@@ -252,13 +252,13 @@ app.get('/api/search', async (req, res) => {
     // Выполняем поиск с полнотекстовым индексом
 
     const [products] = await db.query(`
-      SELECT 
-        p.*,
-        MATCH(p.product_name, p.description) AGAINST(? IN BOOLEAN MODE) AS relevance
-      FROM products p
-      WHERE MATCH(p.product_name, p.description) AGAINST(? IN BOOLEAN MODE)
-      ORDER BY relevance DESC
-      LIMIT ? OFFSET ?
+        SELECT 
+            p.*,
+            MATCH(p.product_name, p.description) AGAINST(? IN BOOLEAN MODE) AS relevance
+        FROM products p
+        WHERE MATCH(p.product_name, p.description) AGAINST(? IN BOOLEAN MODE)
+        ORDER BY relevance DESC
+        LIMIT ? OFFSET ?
     `, [query, query, parseInt(limit), parseInt(offset)]);
 
     // Получаем общее количество результатов
@@ -278,7 +278,8 @@ app.get('/api/search', async (req, res) => {
       totalPages: Math.ceil(total / limit),
       products
     });
-  } catch (err) {
+  } 
+    catch (err) {
     console.error('Ошибка поиска товаров:', err);
     res.status(500).json({ 
       success: false,
@@ -312,6 +313,42 @@ app.get('/api/search/suggest', async (req, res) => {
   } catch (err) {
     console.error('Ошибка автодополнения:', err);
     res.json([]);
+  }
+});
+
+// Новинки (последние добавленные товары)
+app.get('/api/products/new', async (req, res) => {
+  try {
+    const db = await createDbConnection();
+    const [products] = await db.query(`
+      SELECT * FROM products 
+      ORDER BY created_at DESC 
+      LIMIT 10
+    `);
+    db.end();
+    
+    res.json({ success: true, products });
+  } catch (err) {
+    console.error('Ошибка получения новинок:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
+// Лидеры продаж (наиболее популярные товары)
+app.get('/api/products/top', async (req, res) => {
+  try {
+    const db = await createDbConnection();
+    const [products] = await db.query(`
+      SELECT * FROM products 
+      ORDER BY sales_count DESC, rating DESC 
+      LIMIT 10
+    `);
+    db.end();
+    
+    res.json({ success: true, products });
+  } catch (err) {
+    console.error('Ошибка получения лидеров продаж:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
   }
 });
 
