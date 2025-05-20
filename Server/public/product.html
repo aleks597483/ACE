@@ -85,102 +85,37 @@
                 <img src="pictures\4CE.png" class="ACE">
             </a>
             <ul id="categories-list">
-                <h3>Каталог</h3>
                 <!-- Категории будут загружены динамически -->
             </ul>
         </aside>
         <div class="content">
             <form class="poisk_tovary" action="/api/search" method="GET">
                 <input type="text" name="query" required>
-                <button type="button" id="resetSearch" class="reset-btn">x</button>
                 <button type="submit">НАЙТИ</button>
             </form>
-            <div class="banner">
-                <div class="banner-track" id="bannerTrack">
-                    <div class="banner-slide"><img src="pictures\RedSquareBanner.png" alt="Баннер 1"></div>
-                    <div class="banner-slide"><img src="pictures\DuckyBanner.png" alt="Баннер 2"></div>
-                    <div class="banner-slide"><img src="pictures\DarkProjectBanner.png" alt="Баннер 3"></div>
+            <div class="breadcrumbs" id="breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <!-- Главная страница -->
+                <div class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="MainHTML.html" itemprop="item">
+                        <span itemprop="name">Главная</span>
+                    </a>
+                    <meta itemprop="position" content="1">
                 </div>
-                <div class="banner-buttons">
-                    <button class="banner-button" onclick="moveSlide(-1)">&#10094;</button>
-                    <button class="banner-button" onclick="moveSlide(1)">&#10095;</button>
-                </div>
+            <!-- Динамически добавляемые элементы будут здесь -->
             </div>
             <div id="searchResults" class="search-results">
                 <!-- Результаты будут вставлены сюда -->
             </div>
-            <section id="category-products" style="display: none;">
-                <div class="category-header">
-                    <button class="back-to-brands">← Назад к брендам</button>
-                    <h3 id="category-title"></h3>
-                </div>
-                <div class="products-grid" id="category-products-grid"></div>
-            </section>
-            <section id="new-products">
-                <h3>
-                    <img src="pictures\звезда новинки.png" alt="ProductGroupName" class="section-icon">
-                    Новинки
-                </h3>
-                <div class="products-grid" id="new-products-grid">
-                   
-                </div>
-            </section>
-            <section id="top-products">
-                <h3>
-                    <img src="pictures\галочка популярных товаров.png" alt="ProductGroupName" class="section-icon">
-                    Лидеры продаж
-                </h3>
-                <div class="products-grid" id="top-products-grid">
-                    
-                </div>
-            </section>
+            <div id="product-container">
+                <!-- Данные будут загружены через JavaScript -->
+                <h1 id="product-name"></h1>
+                <img id="product-image" src="" alt="">
+                <div id="product-price"></div>
+                <div id="product-description"></div>
+                <div id="product-specs"></div>
+            </div>
         </div>
     <script>
-        // Баннер слайдер
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.banner-slide');
-        const totalSlides = slides.length;
-        let slideInterval;
-
-        // Инициализация слайдера
-        function initSlider() {
-            updateSlidePosition();
-            startSlideShow();
-        }
-
-        // Обновление позиции слайда
-        function updateSlidePosition() {
-            const track = document.getElementById('bannerTrack');
-            track.style.transform = `translateX(-${currentSlide * 100}%)`;
-        }
-
-        // Переключение слайда
-        function moveSlide(direction) {
-            currentSlide += direction;
-            
-            if (currentSlide < 0) {
-                currentSlide = totalSlides - 1;
-            } else if (currentSlide >= totalSlides) {
-                currentSlide = 0;
-            }
-            
-            updateSlidePosition();
-            resetSlideShow();
-        }
-
-        // Автоматическое переключение
-        function startSlideShow() {
-            slideInterval = setInterval(() => {
-                moveSlide(1);
-            }, 5000);
-        }
-
-        // Сброс таймера автоматического переключения
-        function resetSlideShow() {
-            clearInterval(slideInterval);
-            startSlideShow();
-        }
-
         // Глобальные переменные
         let currentUser = null;
 
@@ -380,6 +315,67 @@
          });
     </script>
     <script>
+    // Загружаем данные о товаре
+        async function loadProduct() {
+            try {
+                // Получаем ID товара из URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                
+                if (!productId) {
+                    console.error('ID товара не определен');
+                    return;
+                }
+
+                const response = await fetch(`/api/product/${productId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const product = data.product;
+                    document.getElementById('product-name').textContent = product.product_name;
+                    document.getElementById('product-image').src = product.main_image;
+                    document.getElementById('product-price').textContent = `${product.price.toLocaleString('ru-RU')} ₽`;
+                    document.getElementById('product-description').textContent = product.description;
+                    
+                    // Обновляем title страницы
+                    document.title = product.product_name + ' | 4CE Магазин';
+                    
+                    // Добавляем товар в хлебные крошки
+                    if (breadcrumbHistory) {
+                        breadcrumbHistory.push({
+                            title: product.product_name,
+                            url: window.location.pathname + window.location.search
+                        });
+                        sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbHistory));
+                        updateBreadcrumbs();
+                    }
+                    
+                    // Характеристики
+                    if (product.specs) {
+                        const specs = JSON.parse(product.specs);
+                        let specsHTML = '<ul>';
+                        for (const [key, value] of Object.entries(specs)) {
+                            specsHTML += `<li><strong>${key}:</strong> ${value}</li>`;
+                        }
+                        specsHTML += '</ul>';
+                        document.getElementById('product-specs').innerHTML = specsHTML;
+                    }
+                } else {
+                    document.getElementById('product-container').innerHTML = '<p>Товар не найден</p>';
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки товара:', error);
+                document.getElementById('product-container').innerHTML = '<p>Ошибка загрузки данных</p>';
+            }
+        }
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadProduct();
+            loadCategories();
+        });
+    </script>
+    <script>
         // Функция для отображения товаров
         function displayProducts(products, containerId) {
             const container = document.getElementById(containerId);
@@ -391,7 +387,7 @@
             
             container.innerHTML = products.map(product => `
                 <div class="product">
-                    <a href="product.html?id=${product.product_id}" onclick="saveCategoryContext()">
+                    <a href="#">
                         <img src="${escapeHtml(product.main_image || 'pictures/no-image.png')}" 
                             alt="${escapeHtml(product.product_name)}">
                         <div class="product-title">${escapeHtml(product.product_name)}</div>
@@ -409,14 +405,6 @@
             
             // Инициализация рейтинга
             initRatings();
-        }
-
-        // Новая функция для сохранения контекста категории
-        function saveCategoryContext() {
-            const currentCategory = document.getElementById('category-title').textContent;
-            if (currentCategory && currentCategory !== 'Бренды') {
-                sessionStorage.setItem('lastCategory', currentCategory);
-            }
         }
 
         // Загрузка новинок
@@ -451,20 +439,7 @@
             }
         }
     </script>
-    <script>
-        document.querySelectorAll('.catalog a, .top-nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Только для ссылок, которые не ведут на ту же страницу
-                if (this.href !== window.location.href) {
-                    e.preventDefault();
-                    const title = this.textContent.trim();
-                    const url = this.getAttribute('href');
-                    navigateTo(title, url);
-                    window.location.href = url; // Непосредственный переход
-                }
-            });
-        });
-    </script>
+    
     <script>
         // Добавим в конец script секции в MainHTML.html
         async function loadCategories() {
@@ -525,7 +500,7 @@
         function createCategoryElement(category) {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.href = `/products.html?category=${category.category_id}`;
+            a.href = `/MainHTML.html?category=${category.category_id}`;
             
             // Используем иконку из базы данных или дефолтную
             const iconSrc = category.icon_class ? 
@@ -540,172 +515,89 @@
 
             a.addEventListener('click', async (e) => {
                 e.preventDefault();
-                await loadProductsByCategory(category.category_id, category.category_name);
+                // Сохраняем ID категории для использования в MainHTML.html
                 sessionStorage.setItem('lastCategoryId', category.category_id);
                 sessionStorage.setItem('lastCategory', category.category_name);
-                // Переходим на страницу
+                // Переходим на главную страницу
                 window.location.href = `/MainHTML.html?category=${category.category_id}`;
             });
             
             li.appendChild(a);
             return li;
         }
-
-        // Инициализируем загрузку категорий при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('resetSearch').style.display = 'none';
-            checkAuth();
-            loadNewProducts();
-            loadTopProducts();
-            loadCategories();
-
-            const backButton = document.querySelector('.back-to-brands');
-            if (backButton) {
-                backButton.style.display = 'none';
-            }
-            // Обработка параметра category из URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const categoryId = urlParams.get('category');
-            if (categoryId) {
-                loadProductsByCategory(categoryId, sessionStorage.getItem('lastCategory'));
-            }
-            initBreadcrumbs();
-        });
     </script>
     <script>
         // Глобальная переменная для хранения истории
-        let breadcrumbHistory = [];
+    let breadcrumbHistory = [];
 
-        // Инициализация хлебных крошек
-        function initBreadcrumbs() {
-            // Загружаем историю из sessionStorage или создаем новую
-            breadcrumbHistory = JSON.parse(sessionStorage.getItem('breadcrumbs')) || [];
-            
-            // Если есть сохраненная категория (для страницы товара)
-            const lastCategory = sessionStorage.getItem('lastCategory');
-            if (lastCategory && window.location.pathname.includes('product.html')) {
-                // Проверяем, не добавлена ли уже категория
-                const hasCategory = breadcrumbHistory.some(item => item.title === lastCategory);
-                if (!hasCategory) {
-                    // Добавляем категорию перед товаром
-                    const categoryUrl = `/MainHTML.html?category=${sessionStorage.getItem('lastCategoryId')}`;
-                    breadcrumbHistory.push({
-                        title: lastCategory,
-                        url: categoryUrl
-                    });
-                    sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbHistory));
-                }
+    // Инициализация хлебных крошек
+    function initBreadcrumbs() {
+        // Загружаем историю из sessionStorage или создаем новую
+        breadcrumbHistory = JSON.parse(sessionStorage.getItem('breadcrumbs')) || [];
+        
+        // Добавляем категорию перед товаром, если она есть
+        const lastCategory = sessionStorage.getItem('lastCategory');
+        const lastCategoryId = sessionStorage.getItem('lastCategoryId');
+        if (lastCategory && lastCategoryId) {
+            // Проверяем, не добавлена ли уже категория
+            const hasCategory = breadcrumbHistory.some(item => item.title === lastCategory);
+            if (!hasCategory) {
+                breadcrumbHistory.push({
+                    title: lastCategory,
+                    url: `/MainHTML.html?category=${lastCategoryId}`
+                });
             }
-            
-            updateBreadcrumbs();
+        }
+        
+        updateBreadcrumbs();
+    }
+
+    // Обновление отображения крошек
+    function updateBreadcrumbs() {
+        const breadcrumbsContainer = document.getElementById('breadcrumbs');
+        if (!breadcrumbsContainer) return;
+        
+        // Очищаем все, кроме первого элемента (Главная)
+        while (breadcrumbsContainer.children.length > 1) {
+            breadcrumbsContainer.removeChild(breadcrumbsContainer.lastChild);
         }
 
-        // Обновление отображения крошек
-        function updateBreadcrumbs() {
-            const breadcrumbsContainer = document.getElementById('breadcrumbs');
-            if (!breadcrumbsContainer) return;
-            
-            // Очищаем все, кроме первого элемента (Главная)
-            while (breadcrumbsContainer.children.length > 1) {
-                breadcrumbsContainer.removeChild(breadcrumbsContainer.lastChild);
+        breadcrumbHistory.forEach((item, index) => {
+            // Пропускаем главную страницу, так как она уже есть
+            if (item.url === '/MainHTML.html') return;
+
+            // Создаем разделитель
+            const separator = document.createElement('span');
+            separator.textContent = ' » ';
+            breadcrumbsContainer.appendChild(separator);
+
+            // Создаем элемент крошки
+            const crumb = document.createElement('div');
+            crumb.className = 'breadcrumb-item';
+            crumb.setAttribute('itemprop', 'itemListElement');
+            crumb.setAttribute('itemscope', '');
+            crumb.setAttribute('itemtype', 'https://schema.org/ListItem');
+
+            // Если это последний элемент - делаем его неактивной ссылкой
+            if (index === breadcrumbHistory.length - 1) {
+                crumb.innerHTML = `
+                    <span class="brmtext" itemprop="item">
+                        <span itemprop="name">${item.title}</span>
+                    </span>
+                    <meta itemprop="position" content="${index + 2}">
+                `;
+            } else {
+                crumb.innerHTML = `
+                    <a href="${item.url}" itemprop="item">
+                        <span itemprop="name">${item.title}</span>
+                    </a>
+                    <meta itemprop="position" content="${index + 2}">
+                `;
             }
 
-            breadcrumbHistory.forEach((item, index) => {
-                // Пропускаем главную страницу, так как она уже есть
-                if (item.url === '/MainHTML.html') return;
-
-                // Создаем разделитель
-                const separator = document.createElement('span');
-                separator.textContent = ' » ';
-                breadcrumbsContainer.appendChild(separator);
-
-                // Создаем элемент крошки
-                const crumb = document.createElement('div');
-                crumb.className = 'breadcrumb-item';
-                crumb.setAttribute('itemprop', 'itemListElement');
-                crumb.setAttribute('itemscope', '');
-                crumb.setAttribute('itemtype', 'https://schema.org/ListItem');
-
-                // Если это последний элемент и мы не на главной - делаем его неактивной ссылкой
-                if (index === breadcrumbHistory.length - 1 && window.location.pathname !== '/MainHTML.html') {
-                    crumb.innerHTML = `
-                        <span class="brmtext" itemprop="item">
-                            <span itemprop="name">${item.title}</span>
-                        </span>
-                        <meta itemprop="position" content="${index + 2}">
-                    `;
-                } else {
-                    crumb.innerHTML = `
-                        <a href="${item.url}" itemprop="item">
-                            <span itemprop="name">${item.title}</span>
-                        </a>
-                        <meta itemprop="position" content="${index + 2}">
-                    `;
-                }
-
-                breadcrumbsContainer.appendChild(crumb);
-            });
-        }
-
-        // Добавление новой страницы в историю
-        function navigateTo(title, url) {
-            // Пропускаем пустые или невалидные URL
-            if (!url || url === '#' || url.startsWith('javascript:')) {
-                return;
-            }
-
-            // Если это главная страница - очищаем историю
-            if (url === '/MainHTML.html') {
-                breadcrumbHistory = [];
-            }
-
-            // Не добавляем текущую страницу снова
-            if (breadcrumbHistory.length > 0) {
-                const lastItem = breadcrumbHistory[breadcrumbHistory.length - 1];
-                if (lastItem.url === url) return;
-            }
-
-            // Проверяем, есть ли такая страница в истории
-            const existingIndex = breadcrumbHistory.findIndex(item => item.url === url);
-            
-            // Если страница уже была в истории - это навигация "назад"
-            if (existingIndex >= 0) {
-                breadcrumbHistory = breadcrumbHistory.slice(0, existingIndex + 1);
-            } 
-            // Если это новая страница - добавляем
-            else {
-                breadcrumbHistory.push({ title, url });
-                
-                // Ограничиваем максимальную глубину истории
-                const MAX_HISTORY = 4; // Главная + 3 уровня
-                if (breadcrumbHistory.length > MAX_HISTORY) {
-                    breadcrumbHistory = breadcrumbHistory.slice(-MAX_HISTORY);
-                }
-            }
-
-            // Сохраняем и обновляем отображение
-            sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbHistory));
-            updateBreadcrumbs();
-        }
-
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            // Добавляем текущую страницу в историю
-            const currentPageTitle = document.title;
-            const currentUrl = window.location.pathname + window.location.search;
-            
-            // Для страницы товара добавляем его название
-            if (window.location.pathname.includes('product.html')) {
-                const productName = document.getElementById('product-name')?.textContent;
-                if (productName) {
-                    navigateTo(productName, currentUrl);
-                }
-            } 
-            // Для других страниц добавляем их заголовок
-            else {
-                navigateTo(currentPageTitle, currentUrl);
-            }
+            breadcrumbsContainer.appendChild(crumb);
         });
+    }
     </script>
     <script>
         // Поиск товаров
@@ -713,8 +605,6 @@
             e.preventDefault();
             const query = this.query.value.trim();
             
-            document.getElementById('searchResults').style.display = 'block';
-
             if (query) {
                 try {
                     const response = await fetch(`http://localhost:3000/api/search?query=${encodeURIComponent(query)}`);
@@ -730,23 +620,6 @@
                     showSearchError('Ошибка соединения с сервером');
                 }
             }
-        });
-
-        document.getElementById('resetSearch').addEventListener('click', function() {
-            // Очищаем поле ввода
-            document.querySelector('.poisk_tovary input').value = '';
-            
-            // Скрываем результаты поиска
-            document.getElementById('searchResults').innerHTML = '';
-            document.getElementById('searchResults').style.display = 'none';
-            
-            // Показываем стандартные секции (новинки, топы)
-            document.getElementById('new-products').style.display = 'block';
-            document.getElementById('top-products').style.display = 'block';
-            document.getElementById('category-products').style.display = 'none';
-            
-            // Скрываем подсказки автодополнения, если они есть
-            suggestionsContainer.style.display = 'none';
         });
 
         function initRatings() {
@@ -784,14 +657,9 @@
 
         // Автодополнение
         const searchInput = document.querySelector('.poisk_tovary input[name="query"]');
-        const resetBtn = document.getElementById('resetSearch');
         const suggestionsContainer = document.createElement('div');
         suggestionsContainer.className = 'search-suggestions';
         searchInput.parentNode.insertBefore(suggestionsContainer, searchInput.nextSibling);
-
-        searchInput.addEventListener('input', function() {
-            resetBtn.style.display = this.value.trim() ? 'block' : 'none';
-        });
 
         searchInput.addEventListener('input', async function() {
             const query = this.value.trim();
@@ -830,7 +698,7 @@
                 <div class="products-grid">
                     ${products.map(product => `
                         <div class="product">
-                            <a href="product.html?id=${product.product_id}">
+                            <a href="#">
                                 <img src="${escapeHtml(product.main_image || 'pictures/no-image.png')}" 
                                     alt="${escapeHtml(product.product_name)}">
                                 <div class="product-title">${escapeHtml(product.product_name)}</div>
@@ -873,143 +741,6 @@
                     document.querySelector('.poisk_tovary').dispatchEvent(new Event('submit'));
                 });
             });
-        }
-
-        async function loadProductsByCategory(categoryId, categoryName) {
-            try {
-                // Сохраняем ID и название категории
-                sessionStorage.setItem('lastCategoryId', categoryId);
-                sessionStorage.setItem('lastCategory', categoryName);
-
-                // Проверяем, является ли категория "Бренды"
-                if (categoryName.toLowerCase() === 'бренды') {
-                    await loadBrands();
-                    return;
-                }
-                
-                // Показываем секцию с товарами категории
-                document.getElementById('category-products').style.display = 'block';
-                document.getElementById('category-title').textContent = categoryName;
-
-                // Скрываем другие секции (новинки, лидеры продаж)
-                document.getElementById('new-products').style.display = 'none';
-                document.getElementById('top-products').style.display = 'none';
-
-                // Загрузка товаров с сервера
-                const response = await fetch(`/api/products/category/${categoryId}`);
-                const data = await response.json();
-
-                if (data.success && data.products.length > 0) {
-                    displayProducts(data.products, 'category-products-grid');
-                } else {
-                    document.getElementById('category-products-grid').innerHTML = 
-                        '<p>Товары не найдены</p>';
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                document.getElementById('category-products-grid').innerHTML = 
-                    '<p>Ошибка загрузки товаров</p>';
-            }
-        }
-
-        // Новая функция для загрузки брендов
-        async function loadBrands() {
-        try {
-            // Настраиваем UI
-            document.getElementById('category-products').style.display = 'block';
-            document.getElementById('category-title').textContent = 'Бренды';
-            document.getElementById('new-products').style.display = 'none';
-            document.getElementById('top-products').style.display = 'none';
-
-            // Скрываем кнопку "Назад"
-            const backButton = document.querySelector('.back-to-brands');
-            backButton.style.display = 'none';
-
-            // Запрашиваем бренды с сервера
-            const response = await fetch('/api/brands');
-            const data = await response.json();
-
-            if (data.success && data.brands.length > 0) {
-                displayBrands(data.brands);
-            } else {
-            document.getElementById('category-products-grid').innerHTML = 
-                '<p>Бренды не найдены</p>';
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки брендов:', error);
-            document.getElementById('category-products-grid').innerHTML = 
-            '<p>Ошибка загрузки брендов</p>';
-        }
-        }
-
-        // Функция отображения брендов
-        function displayBrands(brands) {
-        const container = document.getElementById('category-products-grid');
-        container.innerHTML = brands.map(brand => `
-            <div class="product brand-card" data-brand-id="${brand.id}">
-                <div class="brand-clickable">
-                    <img src="${brand.logo || 'pictures/no-image.png'}" 
-                        alt="${escapeHtml(brand.name)}"
-                        class="brand-logo">
-                    <div class="product-title">${escapeHtml(brand.name)}</div>
-                </div>
-            ${brand.description ? `
-                <div class="brand-description">
-                ${escapeHtml(brand.description)}
-                </div>
-            ` : ''}
-            </div>
-        `).join('');
-
-        // Добавляем обработчики кликов
-        document.querySelectorAll('.brand-clickable').forEach(el => {
-            el.addEventListener('click', function() {
-                const brandCard = this.closest('.brand-card');
-                const brandId = brandCard.getAttribute('data-brand-id');
-                const brandName = this.querySelector('.product-title').textContent;
-                loadProductsByBrand(brandId, brandName);
-            });
-        });
-        }
-
-        // Новая функция для загрузки товаров бренда
-        async function loadProductsByBrand(brandId, brandName) {
-        try {
-            // Настраиваем UI
-            document.getElementById('category-products').style.display = 'block';
-            document.getElementById('category-title').textContent = `Товары бренда: ${brandName}`;
-            document.getElementById('new-products').style.display = 'none';
-            document.getElementById('top-products').style.display = 'none';
-
-            // Показываем кнопку "Назад"
-            const backButton = document.querySelector('.back-to-brands');
-            backButton.style.display = 'block';
-
-            // Обработчик кнопки "Назад"
-            document.querySelector('.back-to-brands').addEventListener('click', () => {
-            loadBrands();
-            });
-
-            // Запрашиваем товары бренда
-            const response = await fetch(`/api/products/brands/${brandId}`);
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Ошибка сервера');
-            }
-
-            if (data.success && data.products.length > 0) {
-            displayProducts(data.products, 'category-products-grid');
-            } else {
-            document.getElementById('category-products-grid').innerHTML = 
-                `<p>Нет товаров бренда ${brandName}</p>`;
-            }
-        } 
-            catch (error) {
-            console.error('Ошибка загрузки товаров бренда:', error);
-            document.getElementById('category-products-grid').innerHTML = 
-                '<p>Ошибка загрузки товаров</p>';
-            }
         }
 
         // Обработка ошибок поиска

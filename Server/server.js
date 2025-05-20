@@ -232,6 +232,48 @@ app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
 
+// Добавим новый маршрут для получения категорий
+app.get('/api/categories', async (req, res) => {
+  try {
+    const db = await createDbConnection();
+    
+    // Получаем категории с иерархией
+    const [categories] = await db.query(`
+      WITH RECURSIVE category_tree AS (
+        SELECT 
+          category_id,
+          category_name,
+          category_description,
+          parent_category_id,
+          icon_class,
+          0 AS level
+        FROM categories
+        WHERE parent_category_id IS NULL
+        
+        UNION ALL
+        
+        SELECT 
+          c.category_id,
+          c.category_name,
+          c.category_description,
+          c.parent_category_id,
+          c.icon_class,
+          ct.level + 1
+        FROM categories c
+        JOIN category_tree ct ON c.parent_category_id = ct.category_id
+      )
+      SELECT * FROM category_tree
+      ORDER BY parent_category_id IS NULL DESC, category_id ASC
+    `);
+    
+    db.end();
+    
+    res.json({ success: true, categories });
+  } catch (err) {
+    console.error('Ошибка получения категорий:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
 
 // ==================== Поиск товаров ====================
 
@@ -334,6 +376,24 @@ app.get('/api/products/new', async (req, res) => {
   }
 });
 
+app.get('/api/product/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const db = await createDbConnection();
+        const [products] = await db.query('SELECT * FROM products WHERE product_id = ?', [productId]);
+        db.end();
+        
+        if (products.length === 0) {
+            return res.status(404).json({ error: 'Товар не найден' });
+        }
+        
+        res.json({ success: true, product: products[0] });
+    } catch (err) {
+        console.error('Ошибка получения товара:', err);
+        res.status(500).json({ error: 'Ошибка сервера' });
+    }
+});
+
 // Лидеры продаж (наиболее популярные товары)
 app.get('/api/products/top', async (req, res) => {
   try {
@@ -348,6 +408,81 @@ app.get('/api/products/top', async (req, res) => {
     res.json({ success: true, products });
   } catch (err) {
     console.error('Ошибка получения лидеров продаж:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
+// Получение товаров по категории
+app.get('/api/products/category/:categoryId', async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const db = await createDbConnection();
+
+    const [products] = await db.query(`
+      SELECT p.* 
+      FROM products p
+      JOIN product_categories pc ON p.product_id = pc.product_id
+      WHERE pc.category_id = ?
+      ORDER BY p.created_at DESC
+    `, [categoryId]);
+
+    db.end();
+    res.json({ success: true, products });
+  } catch (err) {
+    console.error('Ошибка получения товаров:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
+// Получение списка всех брендов
+app.get('/api/brands', async (req, res) => {
+  try {
+    const db = await createDbConnection();
+    const [brands] = await db.query(`
+      SELECT 
+        brand_id AS id,
+        brand_name AS name,
+        brand_logo AS logo,
+        brand_description AS description
+      FROM brands
+      ORDER BY brand_name
+    `);
+    db.end();
+    res.json({ success: true, brands });
+  } catch (err) {
+    console.error('Ошибка получения брендов:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
+// Получение товаров по ID бренда
+app.get('/api/products/brands/:brandId', async (req, res) => {
+  try {
+    const { brandId } = req.params;
+    const db = await createDbConnection();
+    
+    // Получаем сначала имя бренда
+    const [[brand]] = await db.query('SELECT brand_name FROM brands WHERE brand_id = ?', [brandId]);
+    if (!brand) {
+      db.end();
+      return res.status(404).json({ success: false, error: 'Бренд не найден' });
+    }
+    const [products] = await db.query(`
+      SELECT p.*, b.brand_name 
+      FROM products p
+      JOIN brands b ON p.brand_id = b.brand_id
+      WHERE p.brand_id = ?
+    `, [brandId]);
+
+    db.end();
+    
+    res.json({ 
+      success: true, 
+      products,
+      brand: products.length > 0 ? products[0].brand_name : null
+    });
+  } catch (err) {
+    console.error('Ошибка получения товаров бренда:', err);
     res.status(500).json({ success: false, error: 'Ошибка сервера' });
   }
 });
