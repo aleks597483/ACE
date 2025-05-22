@@ -394,6 +394,31 @@ app.get('/api/product/:id', async (req, res) => {
     }
 });
 
+// Получение информации о бренде
+app.get('/api/brand/:brandId', async (req, res) => {
+  try {
+    const { brandId } = req.params;
+    const db = await createDbConnection();
+    
+    const [[brand]] = await db.query(`
+      SELECT brand_id, brand_name, brand_logo 
+      FROM brands 
+      WHERE brand_id = ?
+    `, [brandId]);
+    
+    db.end();
+    
+    if (!brand) {
+      return res.status(404).json({ success: false, error: 'Бренд не найден' });
+    }
+    
+    res.json({ success: true, brand });
+  } catch (err) {
+    console.error('Ошибка получения бренда:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
+
 // Лидеры продаж (наиболее популярные товары)
 app.get('/api/products/top', async (req, res) => {
   try {
@@ -485,6 +510,61 @@ app.get('/api/products/brands/:brandId', async (req, res) => {
     console.error('Ошибка получения товаров бренда:', err);
     res.status(500).json({ success: false, error: 'Ошибка сервера' });
   }
+});
+
+// Получение изображений товара (только дополнительных)
+app.get('/api/product-images/:productId', async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const db = await createDbConnection();
+        
+        // Получаем только дополнительные изображения (где is_main = 0 или null)
+        const [images] = await db.query(
+            'SELECT image_url FROM product_images WHERE product_id = ? AND (is_main IS NULL OR is_main = 0) ORDER BY image_id ASC',
+            [productId]
+        );
+        
+        db.end();
+        res.json({ success: true, images });
+    } catch (err) {
+        console.error('Ошибка получения изображений товара:', err);
+        res.status(500).json({ success: false, error: 'Ошибка сервера' });
+    }
+});
+
+app.get('/api/product/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const db = await createDbConnection();
+        
+        // Запрос с добавлением количества отзывов
+        const [products] = await db.query(`
+            SELECT 
+                p.*,
+                COUNT(r.review_id) AS reviews_count
+            FROM products p
+            LEFT JOIN reviews r ON p.product_id = r.product_id
+            WHERE p.product_id = ?
+            GROUP BY p.product_id
+        `, [productId]);
+        
+        db.end();
+        
+        if (products.length === 0) {
+            return res.status(404).json({ error: 'Товар не найден' });
+        }
+        
+        res.json({ 
+            success: true, 
+            product: {
+                ...products[0],
+                reviews_count: parseInt(products[0].reviews_count) || 0
+            }
+        });
+    } catch (err) {
+        console.error('Ошибка получения товара:', err);
+        res.status(500).json({ error: 'Ошибка сервера' });
+    }
 });
 
 // Обработка 404

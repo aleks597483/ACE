@@ -396,7 +396,7 @@
                             alt="${escapeHtml(product.product_name)}">
                         <div class="product-title">${escapeHtml(product.product_name)}</div>
                     </a>
-                    <div class="rating" data-rating="${product.rating || 0}">
+                    <div class="rating-stars" data-rating="${product.rating || 0}">
                         <span class="star" data-value="1">&#9733;</span>
                         <span class="star" data-value="2">&#9733;</span>
                         <span class="star" data-value="3">&#9733;</span>
@@ -750,7 +750,7 @@
         });
 
         function initRatings() {
-            document.querySelectorAll('.rating').forEach(ratingContainer => {
+            document.querySelectorAll('.rating-stars').forEach(ratingContainer => {
                 const rating = parseFloat(ratingContainer.getAttribute('data-rating')) || 0;
                 const stars = Array.from(ratingContainer.querySelectorAll('.star'));
 
@@ -835,7 +835,7 @@
                                     alt="${escapeHtml(product.product_name)}">
                                 <div class="product-title">${escapeHtml(product.product_name)}</div>
                             </a>
-                            <div class="rating" data-rating="${product.rating || 0}">
+                            <div class="rating-stars" data-rating="${product.rating || 0}">
                                 <span class="star" data-value="1">&#9733;</span>
                                 <span class="star" data-value="2">&#9733;</span>
                                 <span class="star" data-value="3">&#9733;</span>
