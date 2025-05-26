@@ -12,7 +12,7 @@
         <div class="menu">
             <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
                 <a href="">Закладки</a>
-                <a href="">Сравнение</a>
+                <a href="CompareHTML.html">Сравнение</a>
                 <a href="BasketHTML.html">Корзина</a>
                 <div style="white-space: nowrap;">
                     <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
@@ -85,6 +85,7 @@
                 <img src="pictures\4CE.png" class="ACE">
             </a>
             <ul id="categories-list">
+                <h3>Каталог</h3>
                 <!-- Категории будут загружены динамически -->
             </ul>
         </aside>
@@ -121,6 +122,16 @@
                     </div>
                     <div class="product-buy-container">
                             <div id="product-price"></div>
+                            <div id="product-stock" class="stock-info"></div>
+                            <div class="product-actions">
+                                <button class="buy-button">Купить</button>
+                                <button class="icon-button">
+                                    <img src="pictures/heart_icon.png" alt="В избранное">
+                                </button>
+                                <button class="icon-button" id="compareButton">
+                                    <img src="pictures/list_icon.png" alt="Сравнить">
+                                </button>
+                            </div>
                             <div class="product-rating" id="product-rating">
                                 <div class="rating-stars" id="rating-stars">
                                     <span class="star" data-value="1">&#9733;</span>
@@ -143,7 +154,6 @@
                     </div>
                 </div>
                 <div class="about-product">
-                    
                 </div>
             </div>
         </div>
@@ -152,178 +162,232 @@
             <img id="fullscreenImage" class="fullscreen-image" src="" alt="Полноэкранное изображение">
         </div>
     </div>
-<script>
-    // Глобальные переменные
-    let currentUser = null;
-    // DOM элементы
-    const modal = document.getElementById('modal');
-    const authSection = document.getElementById('authSection');
-    const authLink = document.getElementById('authLink');
-    // Функции модального окна
-    function openModal() {
-        modal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    }
-    function closeModal() {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-        resetForms();
-    }
-    function showTab(tabId, event = null) {
-        if (event) {
-            event.preventDefault();
+    <script>
+        // Глобальные переменные
+        let currentUser = null;
+        // DOM элементы
+        const modal = document.getElementById('modal');
+        const authSection = document.getElementById('authSection');
+        const authLink = document.getElementById('authLink');
+        // Функции модального окна
+        function openModal() {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.style.display = 'none';
-        });
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.getElementById(tabId).style.display = 'block';
-        if (event) {
-        event.currentTarget.classList.add('active');
-        } else {
-            document.querySelector(`.tab-btn[onclick*="${tabId}"]`).classList.add('active');
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            resetForms();
         }
-    }
-    function resetForms() {
-        document.getElementById('loginForm').reset();
-        document.getElementById('registerForm').reset();
-    }
-    function togglePassword(inputId) {
-        const input = document.getElementById(inputId);
-        input.type = input.type === 'password' ? 'text' : 'password';
-    }
-    // Обновление UI авторизации
-    function updateAuthUI(isLoggedIn, userData = null) {
-        if (isLoggedIn && userData) {
-            currentUser = userData;
-            const firstLetter = userData.username.charAt(0).toUpperCase();
-            authSection.innerHTML = `
-                <div class="user-avatar">${firstLetter}</div>
-                <a href="AccountHTML.html" id="authLink">${userData.username}</a>
-                <a href="#" id="logoutBtn" class="logout-btn">Выйти</a>
-            `;
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-        } else {
-            currentUser = null;
-            authSection.innerHTML = `
-                <a href="#" id="authLink" onclick="event.preventDefault(); openModal();">Вход</a>
-            `;
-        }
-    }
-    // Выход из системы
-    function logout() {
-        localStorage.removeItem('token');
-        updateAuthUI(false);
-        window.location.reload();
-    }
-    // Проверка авторизации при загрузке
-    async function checkAuth() {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            updateAuthUI(false);
-            return;
-        }
-        try {
-            const response = await fetch('http://localhost:3000/get-user', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (!response.ok) {
-                if (response.status === 403) {
-                    localStorage.removeItem('token');
-                    throw new Error('Сессия истекла');
-                }
-                throw new Error('Ошибка сервера');
+        function showTab(tabId, event = null) {
+            if (event) {
+                event.preventDefault();
             }
-            const userData = await response.json();
-            updateAuthUI(true, userData);
-        } catch (error) {
-            console.error('Ошибка проверки авторизации:', error);
-            alert(error.message);
-            updateAuthUI(false);
-        }
-    }
-    // Обработка формы входа
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        if (!email || !password) {
-            alert('Заполните все поля');
-            return;
-        }
-        try {
-            const response = await fetch('http://localhost:3000/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
             });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'Ошибка входа');
-            }
-            localStorage.setItem('token', data.token);
-            updateAuthUI(true, { username: data.username });
-            closeModal();
-        } catch (error) {
-            console.error('Ошибка входа:', error);
-            alert(error.message);
-        }
-    });
-    // Обработка формы регистрации
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const userData = {
-            username: document.getElementById('regUsername').value.trim(),
-            subname: document.getElementById('regSubname').value.trim(),
-            email: document.getElementById('regEmail').value.trim(),
-            password: document.getElementById('regPassword').value
-        };
-        if (!userData.username || !userData.subname || !userData.email || !userData.password) {
-            alert('Заполните все поля');
-            return;
-        }
-        if (userData.password.length < 8) {
-            alert('Пароль должен содержать минимум 8 символов');
-            return;
-        }
-        try {
-            const response = await fetch('http://localhost:3000/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(userData)
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'Ошибка регистрации');
+            document.getElementById(tabId).style.display = 'block';
+            if (event) {
+            event.currentTarget.classList.add('active');
+            } else {
+                document.querySelector(`.tab-btn[onclick*="${tabId}"]`).classList.add('active');
             }
-            alert('Регистрация успешна! Теперь вы можете войти');
-            showTab('login');
-            document.getElementById('loginEmail').value = userData.email;
+        }
+        function resetForms() {
+            document.getElementById('loginForm').reset();
             document.getElementById('registerForm').reset();
-        } catch (error) {
-            console.error('Ошибка регистрации:', error);
-            alert(error.message);
         }
-    });
-    // Закрытие модального окна при клике вне его
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
         }
-     });
-</script>
-<script>
+        // Обновление UI авторизации
+        function updateAuthUI(isLoggedIn, userData = null) {
+            if (isLoggedIn && userData) {
+                currentUser = userData;
+                const firstLetter = userData.username.charAt(0).toUpperCase();
+                authSection.innerHTML = `
+                    <div class="user-avatar">${firstLetter}</div>
+                    <a href="AccountHTML.html" id="authLink">${userData.username}</a>
+                    <a href="#" id="logoutBtn" class="logout-btn">Выйти</a>
+                `;
+                document.getElementById('logoutBtn').addEventListener('click', logout);
+            } else {
+                currentUser = null;
+                authSection.innerHTML = `
+                    <a href="#" id="authLink" onclick="event.preventDefault(); openModal();">Вход</a>
+                `;
+            }
+        }
+        // Выход из системы
+        function logout() {
+            localStorage.removeItem('token');
+            updateAuthUI(false);
+            window.location.reload();
+        }
+        // Проверка авторизации при загрузке
+        async function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                updateAuthUI(false);
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:3000/get-user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        localStorage.removeItem('token');
+                        throw new Error('Сессия истекла');
+                    }
+                    throw new Error('Ошибка сервера');
+                }
+                const userData = await response.json();
+                updateAuthUI(true, userData);
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
+                alert(error.message);
+                updateAuthUI(false);
+            }
+        }
+        // Обработка формы входа
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!email || !password) {
+                alert('Заполните все поля');
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка входа');
+                }
+                localStorage.setItem('token', data.token);
+                updateAuthUI(true, { username: data.username });
+                closeModal();
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                alert(error.message);
+            }
+        });
+        // Обработка формы регистрации
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                username: document.getElementById('regUsername').value.trim(),
+                subname: document.getElementById('regSubname').value.trim(),
+                email: document.getElementById('regEmail').value.trim(),
+                password: document.getElementById('regPassword').value
+            };
+            if (!userData.username || !userData.subname || !userData.email || !userData.password) {
+                alert('Заполните все поля');
+                return;
+            }
+            if (userData.password.length < 8) {
+                alert('Пароль должен содержать минимум 8 символов');
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:3000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка регистрации');
+                }
+                alert('Регистрация успешна! Теперь вы можете войти');
+                showTab('login');
+                document.getElementById('loginEmail').value = userData.email;
+                document.getElementById('registerForm').reset();
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                alert(error.message);
+            }
+        });
+        // Закрытие модального окна при клике вне его
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+    <script>
+        // Обработчик кнопки "Купить"
+        document.querySelector('.buy-button').addEventListener('click', async function() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                
+                if (!productId) {
+                    alert('Ошибка: ID товара не определен');
+                    return;
+                }
+
+                // Получаем данные о товаре
+                const productName = document.getElementById('product-name').textContent;
+                const productPriceText = document.getElementById('product-price').textContent;
+                const productPrice = parseInt(productPriceText.replace(/\D/g, ''));
+
+                // Проверяем авторизацию
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    openModal();
+                    alert('Для добавления товара в корзину необходимо войти в систему');
+                    return;
+                }
+
+                // Отправляем запрос на сервер
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        product_id: parseInt(productId),
+                        product_name: productName,
+                        price: productPrice,
+                        quantity: 1
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Ошибка при добавлении в корзину');
+                }
+
+                alert('Товар добавлен в корзину!');
+                // Можно обновить счетчик корзины в шапке сайта, если он есть
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert(error.message);
+            }
+        });
+    </script>
+    <script>
     // Загружаем данные о товаре
     async function loadProduct() {
         try {
@@ -339,6 +403,16 @@
             const productData = await productResponse.json();
             if (productData.success) {
                 const product = productData.product;
+                const stockElement = document.getElementById('product-stock')
+                if (stockElement) {
+                    if (product.stock_quantity > 0) {
+                        stockElement.textContent = `В наличии (${product.stock_quantity} шт.)`;
+                        stockElement.style.color = 'green';
+                    } else {
+                        stockElement.textContent = 'Нет в наличии';
+                        stockElement.style.color = 'red';
+                    }
+                }
                 document.getElementById('product-name').textContent = product.product_name;
                 
                 // Загружаем дополнительные изображения товара
@@ -346,7 +420,6 @@
                 const imagesData = await imagesResponse.json();
                 
                 // Загружаем информацию о бренде
-                // В функции loadProduct() замените блок загрузки бренда на:
                 const brandResponse = await fetch(`/api/brand/${product.brand_id}`);
                 if (!brandResponse.ok) {
                     console.error('Бренд не найден, статус:', brandResponse.status);
@@ -579,8 +652,8 @@
         loadProduct();
         loadCategories();
     });
-</script>
-<script>
+    </script>
+    <script>
     // Функция для отображения товаров
     function displayProducts(products, containerId) {
         const container = document.getElementById(containerId);
@@ -641,9 +714,8 @@
             console.error('Ошибка загрузки лидеров продаж:', error);
         }
     }
-</script>
-
-<script>
+    </script>
+    <script>
     // Добавим в конец script секции в MainHTML.html
     async function loadCategories() {
         try {
@@ -724,74 +796,188 @@
         li.appendChild(a);
         return li;
     }
-</script>
-<script>
+    </script>
+    <script>
     // Глобальная переменная для хранения истории
-let breadcrumbHistory = [];
-// Инициализация хлебных крошек
-function initBreadcrumbs() {
-    // Загружаем историю из sessionStorage или создаем новую
-    breadcrumbHistory = JSON.parse(sessionStorage.getItem('breadcrumbs')) || [];
-    
-    // Добавляем категорию перед товаром, если она есть
-    const lastCategory = sessionStorage.getItem('lastCategory');
-    const lastCategoryId = sessionStorage.getItem('lastCategoryId');
-    if (lastCategory && lastCategoryId) {
-        // Проверяем, не добавлена ли уже категория
-        const hasCategory = breadcrumbHistory.some(item => item.title === lastCategory);
-        if (!hasCategory) {
-            breadcrumbHistory.push({
-                title: lastCategory,
-                url: `/MainHTML.html?category=${lastCategoryId}`
-            });
+    let breadcrumbHistory = [];
+    // Инициализация хлебных крошек
+    function initBreadcrumbs() {
+        // Загружаем историю из sessionStorage или создаем новую
+        breadcrumbHistory = JSON.parse(sessionStorage.getItem('breadcrumbs')) || [];
+        
+        // Добавляем категорию перед товаром, если она есть
+        const lastCategory = sessionStorage.getItem('lastCategory');
+        const lastCategoryId = sessionStorage.getItem('lastCategoryId');
+        if (lastCategory && lastCategoryId) {
+            // Проверяем, не добавлена ли уже категория
+            const hasCategory = breadcrumbHistory.some(item => item.title === lastCategory);
+            if (!hasCategory) {
+                breadcrumbHistory.push({
+                    title: lastCategory,
+                    url: `/MainHTML.html?category=${lastCategoryId}`
+                });
+            }
         }
+        
+        updateBreadcrumbs();
     }
-    
-    updateBreadcrumbs();
-}
-// Обновление отображения крошек
-function updateBreadcrumbs() {
-    const breadcrumbsContainer = document.getElementById('breadcrumbs');
-    if (!breadcrumbsContainer) return;
-    
-    // Очищаем все, кроме первого элемента (Главная)
-    while (breadcrumbsContainer.children.length > 1) {
-        breadcrumbsContainer.removeChild(breadcrumbsContainer.lastChild);
-    }
-    breadcrumbHistory.forEach((item, index) => {
-        // Пропускаем главную страницу, так как она уже есть
-        if (item.url === '/MainHTML.html') return;
-        // Создаем разделитель
-        const separator = document.createElement('span');
-        separator.textContent = ' » ';
-        breadcrumbsContainer.appendChild(separator);
-        // Создаем элемент крошки
-        const crumb = document.createElement('div');
-        crumb.className = 'breadcrumb-item';
-        crumb.setAttribute('itemprop', 'itemListElement');
-        crumb.setAttribute('itemscope', '');
-        crumb.setAttribute('itemtype', 'https://schema.org/ListItem');
-        // Если это последний элемент - делаем его неактивной ссылкой
-        if (index === breadcrumbHistory.length - 1) {
-            crumb.innerHTML = `
-                <span class="brmtext" itemprop="item">
-                    <span itemprop="name">${item.title}</span>
-                </span>
-                <meta itemprop="position" content="${index + 2}">
-            `;
-        } else {
-            crumb.innerHTML = `
-                <a href="${item.url}" itemprop="item">
-                    <span itemprop="name">${item.title}</span>
-                </a>
-                <meta itemprop="position" content="${index + 2}">
-            `;
+    // Обновление отображения крошек
+    function updateBreadcrumbs() {
+        const breadcrumbsContainer = document.getElementById('breadcrumbs');
+        if (!breadcrumbsContainer) return;
+        
+        // Очищаем все, кроме первого элемента (Главная)
+        while (breadcrumbsContainer.children.length > 1) {
+            breadcrumbsContainer.removeChild(breadcrumbsContainer.lastChild);
         }
-        breadcrumbsContainer.appendChild(crumb);
-    });
-}
-</script>
-<script>
+        breadcrumbHistory.forEach((item, index) => {
+            // Пропускаем главную страницу, так как она уже есть
+            if (item.url === '/MainHTML.html') return;
+            // Создаем разделитель
+            const separator = document.createElement('span');
+            separator.textContent = ' » ';
+            breadcrumbsContainer.appendChild(separator);
+            // Создаем элемент крошки
+            const crumb = document.createElement('div');
+            crumb.className = 'breadcrumb-item';
+            crumb.setAttribute('itemprop', 'itemListElement');
+            crumb.setAttribute('itemscope', '');
+            crumb.setAttribute('itemtype', 'https://schema.org/ListItem');
+            // Если это последний элемент - делаем его неактивной ссылкой
+            if (index === breadcrumbHistory.length - 1) {
+                crumb.innerHTML = `
+                    <span class="brmtext" itemprop="item">
+                        <span itemprop="name">${item.title}</span>
+                    </span>
+                    <meta itemprop="position" content="${index + 2}">
+                `;
+            } else {
+                crumb.innerHTML = `
+                    <a href="${item.url}" itemprop="item">
+                        <span itemprop="name">${item.title}</span>
+                    </a>
+                    <meta itemprop="position" content="${index + 2}">
+                `;
+            }
+            breadcrumbsContainer.appendChild(crumb);
+        });
+    }
+    </script>
+    <script>
+        // Обработчик кнопки сравнения
+        document.getElementById('compareButton').addEventListener('click', async function() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                
+                if (!productId) {
+                    alert('Ошибка: ID товара не определен');
+                    return;
+                }
+
+                // Проверяем авторизацию
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    openModal();
+                    alert('Для сравнения товаров необходимо войти в систему');
+                    return;
+                }
+
+                // Проверяем, добавлен ли уже товар в сравнения
+                const isInCompareList = await checkIfInCompareList(productId);
+                
+                if (isInCompareList) {
+                    // Если товар уже в списке - удаляем его
+                    const response = await fetch('/api/compare/remove', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            product_id: parseInt(productId)
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Ошибка при удалении из сравнений');
+                    }
+
+                    alert(data.message || 'Товар удален из списка сравнений!');
+                    this.classList.remove('added-to-compare');
+                } else {
+                    // Если товара нет в списке - добавляем его
+                    // Получаем данные о товаре, чтобы узнать category_id
+                    const productResponse = await fetch(`/api/product/${productId}`);
+                    const productData = await productResponse.json();
+                    
+                    if (!productData.success) {
+                        throw new Error('Не удалось получить данные о товаре');
+                    }
+
+                    // Отправляем запрос на добавление в сравнения
+                    const response = await fetch('/api/compare/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            product_id: parseInt(productId),
+                            category_id: productData.product.category_id
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Ошибка при добавлении в сравнения');
+                    }
+
+                    alert(data.message || 'Товар добавлен в список сравнений!');
+                    this.classList.add('added-to-compare');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert(error.message);
+            }
+        });
+    </script>
+    <script>
+        async function checkIfInCompareList(productId) {
+            const token = localStorage.getItem('token');
+            if (!token) return false;
+            
+            try {
+                const response = await fetch(`/api/compare/check?product_id=${productId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                return data.success && data.inCompareList;
+            } catch (error) {
+                console.error('Ошибка проверки списка сравнений:', error);
+                return false;
+            }
+        }
+
+        // И при загрузке товара:
+        document.addEventListener('DOMContentLoaded', async () => {
+            checkAuth();
+            loadProduct();
+            loadCategories();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            if (productId && await checkIfInCompareList(productId)) {
+                document.getElementById('compareButton').classList.add('added-to-compare');
+            }
+        });
+    </script>
+    <script>
     // Поиск товаров
     document.querySelector('.poisk_tovary').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -939,6 +1125,9 @@ function updateBreadcrumbs() {
             suggestionsContainer.style.display = 'none';
         }
     });
+
+
+
     // Экранирование HTML
     function escapeHtml(unsafe) {
         return unsafe

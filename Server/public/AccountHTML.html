@@ -6,26 +6,25 @@
     <title>Личный кабинет | 4CE Магазин</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="MainCSS.css">
-    <link rel="stylesheet" href="AccountCSS.css">
 </head>
 <body>
     <header>
-        <div class="menu"></div>
-        <nav class="top-nav">
-            <a href="">Закладки</a>
-            <a href="">Сравнение</a>
-            <a href="BasketHTML.html">Корзина</a>
-            <div>
-                <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
-                8(999)692-19-72
-            </div>
-            <a href="">Самовывоз</a>
-            <a href="">Доставка</a>
-            <a href="">Оплата</a>
-            <a href="MainHTML.html">Главная</a>
-        </nav>
+        <div class="menu">
+            <nav class="top-nav">
+                <a href="">Закладки</a>
+                <a href="CompareHTML.html">Сравнение</a>
+                <a href="BasketHTML.html">Корзина</a>
+                <div style="white-space: nowrap;">
+                    <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
+                    8(952)&nbsp;570-76-95
+                </div>
+                <a href="">Самовывоз</a>
+                <a href="">Доставка</a>
+                <a href="">Оплата</a>
+                <a href="MainHTML.html">Главная</a>
+            </nav>
+        </div>
     </header>
-
     <div class="main">
         <aside class="catalog">
             <h4>магазин игровых товаров</h4>
@@ -39,46 +38,38 @@
                 <li><a href="#" id="logout">Выйти</a></li>
             </ul>
         </aside>
-
         <div class="content">
             <div class="account-container">
                 <div class="account-header">
                     <h2>Личный кабинет</h2>
                 </div>
-                
                 <form id="accountForm" class="account-form">
                     <div class="form-group">
                         <label for="username">Имя</label>
                         <input type="text" id="username" name="username" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="subname">Фамилия</label>
                         <input type="text" id="subname" name="subname" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="currentPassword">Текущий пароль</label>
                         <input type="password" id="currentPassword" name="currentPassword">
                         <span class="password-toggle" onclick="togglePassword('currentPassword')">Показать пароль</span>
                     </div>
-                    
                     <div class="form-group">
                         <label for="newPassword">Новый пароль</label>
                         <input type="password" id="newPassword" name="newPassword">
                         <span class="password-toggle" onclick="togglePassword('newPassword')">Показать пароль</span>
                     </div>
-                    
                     <div class="form-group">
                         <label for="confirmPassword">Подтвердите пароль</label>
                         <input type="password" id="confirmPassword" name="confirmPassword">
                     </div>
-                    
                     <div class="form-actions">
                         <button type="button" class="btn btn-cancel">Отмена</button>
                         <button type="submit" class="btn btn-save">Сохранить</button>
@@ -87,7 +78,6 @@
             </div>
         </div>
     </div>
-
     <script>
         // Загрузка данных пользователя при открытии страницы
         document.addEventListener('DOMContentLoaded', async () => {
@@ -180,6 +170,16 @@
         function togglePassword(id) {
             const input = document.getElementById(id);
             input.type = input.type === 'password' ? 'text' : 'password';
+        }
+        // Экранирование HTML
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/-/g, "\ ")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
     </script>
 </body>

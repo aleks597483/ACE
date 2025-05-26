@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -98,43 +98,14 @@
             <div id="searchResults" class="search-results">
                 <!-- Результаты будут вставлены сюда -->
             </div>
-            <div class="basket-container">
-                <h2 class="basket-title">Ваша корзина</h2>
-                <div class="basket-content">
-                    <table class="basket-items">
-                        <thead>
-                            <tr>
-                                <th>Товар</th>
-                                <th>Цена</th>
-                                <th>Количество</th>
-                                <th>Сумма</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="basket-items-container">
-                            <!-- Товары будут добавляться сюда динамически -->
-                        </tbody>
-                    </table>
-                    <div class="basket-summary">
-                        <div class="total-price">Итого: <span id="total-price-amount">0 ₽</span></div>
-                        <button class="checkout-btn">Оформить заказ</button>
-                    </div>
-                    <div class="empty-basket">
-                        <p>Ваша корзина пуста</p>
-                        <p>Перейдите в каталог, чтобы добавить товары</p>
-                    </div>
+            <div class="compare-section">
+                <h2>Сравнение товаров</h2>
+                <div id="compare-table-container">
+                    <!-- Таблица сравнения будет сгенерирована здесь -->
                 </div>
             </div>
         </div>
     </div>
-            <section id="category-products" style="display: none;">
-                <div class="category-header">
-                    <button class="back-to-brands">← Назад к брендам</button>
-                    <h3 id="category-title"></h3>
-                </div>
-                <div class="products-grid" id="category-products-grid"></div>
-            </section>
-        </div>
     <script>
         // Глобальные переменные
         let currentUser = null;
@@ -335,282 +306,83 @@
          });
     </script>
     <script>
-        // Функция для отображения товаров в корзине
-        function renderBasketItems(items) {
-            const container = document.getElementById('basket-items-container');
-            const emptyBasket = document.querySelector('.empty-basket');
-            const basketTable = document.querySelector('.basket-items');
-            const basketSummary = document.querySelector('.basket-summary');
-            
-            // Очищаем контейнер
-            container.innerHTML = '';
-            
-            if (!items || items.length === 0) {
-                emptyBasket.style.display = 'block';
-                basketTable.style.display = 'none';
-                basketSummary.style.display = 'none';
-                return;
-            }
-            
-            // Скрываем сообщение о пустой корзине
-            emptyBasket.style.display = 'none';
-            basketTable.style.display = 'table';
-            basketSummary.style.display = 'flex';
-            
-            // Добавляем товары
-            items.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = 'basket-item';
-                tr.dataset.id = item.id;
-                
-                tr.innerHTML = `
-                    <td>
-                        <div class="basket-item-info">
-                            <img src="${item.main_image || 'pictures/no-image.png'}" 
-                                alt="${item.product_name}" 
-                                class="basket-item-image">
-                            <div class="basket-item-details">
-                                <div class="basket-item-name">${item.product_name}</div>
-                                <div class="basket-item-code">Артикул: ${item.product_code}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="basket-item-price">${(item.price).toLocaleString('ru-RU')} ₽</td>
-                    <td>
-                        <div class="quantity-control">
-                            <button class="quantity-btn minus">-</button>
-                            <input type="text" class="quantity-input" value="${item.quantity}">
-                            <button class="quantity-btn plus">+</button>
-                        </div>
-                    </td>
-                    <td class="basket-item-total">${(item.price * item.quantity).toLocaleString('ru-RU')} ₽</td>
-                    <td><span class="remove-btn">✕</span></td>
-                `;
-                
-                container.appendChild(tr);
-            });
-            
-            // Обновляем итоговую сумму
-            updateTotalPrice(items);
-            
-            // Добавляем обработчики событий
-            addBasketEventListeners();
-        }
-        
-        // Функция для обновления итоговой суммы
-        function updateTotalPrice(items) {
-            const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            document.getElementById('total-price-amount').textContent = 
-                `${(total).toLocaleString('ru-RU')} ₽`;
-        }
-        
-        // Функция для добавления обработчиков событий
-        function addBasketEventListeners() {
+        // Скрипт для работы с корзиной
+        document.addEventListener('DOMContentLoaded', function() {
             // Обработчики для кнопок изменения количества
             document.querySelectorAll('.quantity-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const itemId = this.closest('.basket-item').dataset.id;
+                btn.addEventListener('click', function() {
                     const input = this.parentElement.querySelector('.quantity-input');
                     let value = parseInt(input.value);
-                    
+                   
                     if (this.classList.contains('plus')) {
                         value++;
                     } else if (this.classList.contains('minus')) {
                         value = Math.max(1, value - 1);
                     }
-                    
+                   
                     input.value = value;
-                    await updateCartItem(itemId, value);
-                    updateItemTotal(this.closest('.basket-item'), value);
+                    updateBasketTotals();
                 });
             });
-            
+           
             // Обработчики для полей ввода количества
             document.querySelectorAll('.quantity-input').forEach(input => {
-                input.addEventListener('change', async function() {
-                    const itemId = this.closest('.basket-item').dataset.id;
+                input.addEventListener('change', function() {
                     let value = parseInt(this.value);
-                    
                     if (isNaN(value) || value < 1) {
                         this.value = 1;
-                        value = 1;
                     }
-                    
-                    await updateCartItem(itemId, value);
-                    updateItemTotal(this.closest('.basket-item'), value);
+                    updateBasketTotals();
                 });
             });
-            
+           
             // Обработчики для кнопок удаления
             document.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const itemId = this.closest('.basket-item').dataset.id;
-                    await removeCartItem(itemId);
+                btn.addEventListener('click', function() {
                     this.closest('.basket-item').remove();
+                    updateBasketTotals();
                     checkEmptyBasket();
                 });
             });
-
-            document.querySelector('.checkout-btn').addEventListener('click', async function() {
-                try {
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        alert('Для оформления заказа необходимо авторизоваться');
-                        openModal();
-                        return;
-                    }
-
-                    // Подтверждение перед оформлением
-                    const confirmCheckout = confirm('Вы уверены, что хотите оформить заказ?');
-                    if (!confirmCheckout) return;
-                    
-                    const response = await fetch('/api/checkout', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || 'Ошибка оформления заказа');
-                    }
-
-                    alert(`Заказ #${data.orderId} успешно оформлен!\nСумма заказа: ${document.getElementById('total-price-amount').textContent}\nСтатус: В обработке`);
-                    loadCart();
-                } catch (error) {
-                    console.error('Ошибка оформления заказа:', error);
-                    alert(`Ошибка: ${error.message}\nПопробуйте ещё раз или обратитесь в поддержку`);
-                }
-            });
-        }
-        
-        // Функция для обновления общей стоимости товара
-        function updateItemTotal(itemElement, quantity) {
-            const price = parseInt(itemElement.querySelector('.basket-item-price').textContent.replace(/\D/g, ''));
-            const total = price * quantity;
-            itemElement.querySelector('.basket-item-total').textContent = 
-                `${(total).toLocaleString('ru-RU')} ₽`;
-            
-            // Обновляем общую сумму
-            updateTotalPriceFromDOM();
-        }
-        
-        // Функция для обновления общей суммы на основе DOM
-        function updateTotalPriceFromDOM() {
-            const items = Array.from(document.querySelectorAll('.basket-item'));
-            const total = items.reduce((sum, item) => {
-                const price = parseInt(item.querySelector('.basket-item-price').textContent.replace(/\D/g, ''), 10);
-                const quantity = parseInt(item.querySelector('.quantity-input').value, 10);
-                return sum + (price * quantity);
-            }, 0);
-            
-            document.getElementById('total-price-amount').textContent = 
-                `${(total).toLocaleString('ru-RU')} ₽`;
-        }
-        
-        // Функция проверки пустой корзины
-        function checkEmptyBasket() {
-            const items = document.querySelectorAll('.basket-item');
-            const emptyBasket = document.querySelector('.empty-basket');
-            const basketTable = document.querySelector('.basket-items');
-            const basketSummary = document.querySelector('.basket-summary');
-            
-            if (items.length === 0) {
-                emptyBasket.style.display = 'block';
-                basketTable.style.display = 'none';
-                basketSummary.style.display = 'none';
-            } else {
-                emptyBasket.style.display = 'none';
-                basketTable.style.display = 'table';
-                basketSummary.style.display = 'flex';
-            }
-        }
-        
-        // Функции для работы с API корзины
-        async function updateCartItem(itemId, quantity) {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) return;
-                
-                const response = await fetch(`/api/cart/update/${itemId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ quantity })
+           
+            // Функция обновления итоговых сумм
+            function updateBasketTotals() {
+                let total = 0;
+               
+                document.querySelectorAll('.basket-item').forEach(item => {
+                    const priceText = item.querySelector('td:nth-child(2)').textContent;
+                    const price = parseFloat(priceText.replace(/[^\d.]/g, ''));
+                    const quantity = parseInt(item.querySelector('.quantity-input').value);
+                    const sum = price * quantity;
+                   
+                    item.querySelector('td:nth-child(4)').textContent = sum.toLocaleString('ru-RU') + ' ₽';
+                    total += sum;
                 });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Ошибка обновления корзины');
-                }
-            } catch (error) {
-                console.error('Ошибка обновления корзины:', error);
-                alert(error.message);
+               
+                document.querySelector('.total-price').textContent = 'Итого: ' + total.toLocaleString('ru-RU') + ' ₽';
             }
-        }
-        
-        async function removeCartItem(itemId) {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) return;
-                
-                const response = await fetch(`/api/cart/remove/${itemId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Ошибка удаления из корзины');
+           
+            // Функция проверки пустой корзины
+            function checkEmptyBasket() {
+                const items = document.querySelectorAll('.basket-item');
+                const emptyBasket = document.querySelector('.empty-basket');
+                const basketTable = document.querySelector('.basket-items');
+                const basketSummary = document.querySelector('.basket-summary');
+               
+                if (items.length === 0) {
+                    if (emptyBasket) emptyBasket.style.display = 'block';
+                    if (basketTable) basketTable.style.display = 'none';
+                    if (basketSummary) basketSummary.style.display = 'none';
+                } else {
+                    if (emptyBasket) emptyBasket.style.display = 'none';
+                    if (basketTable) basketTable.style.display = 'table';
+                    if (basketSummary) basketSummary.style.display = 'flex';
                 }
-            } catch (error) {
-                console.error('Ошибка удаления из корзины:', error);
-                alert(error.message);
             }
-        }
-        
-        // Функция загрузки корзины
-        async function loadCart() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    // Показываем пустую корзину для неавторизованных пользователей
-                    renderBasketItems([]);
-                    return;
-                }
-                
-                const response = await fetch('/api/cart', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Ошибка загрузки корзины');
-                }
-                
-                renderBasketItems(data.items);
-            } catch (error) {
-                console.error('Ошибка загрузки корзины:', error);
-                renderBasketItems([]);
-            }
-        }
-        
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCart();
-            checkAuth();
+           
+            // Инициализация
+            updateBasketTotals();
+            checkEmptyBasket();
         });
     </script>
     <script>
@@ -700,6 +472,7 @@
         });
     </script>
     <script>
+        // Добавим в конец script секции в MainHTML.html
         async function loadCategories() {
             try {
                 const response = await fetch('/api/categories');

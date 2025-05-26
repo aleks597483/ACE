@@ -12,7 +12,7 @@
         <div class="menu">
             <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
                 <a href="">Закладки</a>
-                <a href="">Сравнение</a>
+                <a href="CompareHTML.html">Сравнение</a>
                 <a href="BasketHTML.html">Корзина</a>
                 <div style="white-space: nowrap;">
                     <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
@@ -403,7 +403,7 @@
                         <span class="star" data-value="4">&#9733;</span>
                         <span class="star" data-value="5">&#9733;</span>
                     </div>
-                    <div class="price">${product.price.toLocaleString('ru-RU')} ₽</div>
+                    <div class="price">${product.price.toLocaleString('ru-RU')} ₽</div> 
                 </div>
             `).join('');
             
@@ -951,7 +951,7 @@
                     <img src="${brand.logo || 'pictures/no-image.png'}" 
                         alt="${escapeHtml(brand.name)}"
                         class="brand-logo">
-                    <div class="product-title">${escapeHtml(brand.name)}</div>
+                    <div class="brand-title">${escapeHtml(brand.name)}</div>
                 </div>
             ${brand.description ? `
                 <div class="brand-description">
@@ -966,7 +966,7 @@
             el.addEventListener('click', function() {
                 const brandCard = this.closest('.brand-card');
                 const brandId = brandCard.getAttribute('data-brand-id');
-                const brandName = this.querySelector('.product-title').textContent;
+                const brandName = this.querySelector('.brand-title').textContent;
                 loadProductsByBrand(brandId, brandName);
             });
         });

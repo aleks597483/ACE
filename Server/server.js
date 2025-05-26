@@ -32,9 +32,10 @@ const PORT = process.env.PORT || 3000;
 
 // Настройка CORS
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5500'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'],
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
 // Middleware
@@ -565,6 +566,384 @@ app.get('/api/product/:id', async (req, res) => {
         console.error('Ошибка получения товара:', err);
         res.status(500).json({ error: 'Ошибка сервера' });
     }
+});
+// Получение содержимого корзины
+app.get('/api/cart', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const userId = req.user.userId;
+    
+    const [items] = await db.query(
+      `SELECT c.*, p.main_image, p.product_code, p.stock_quantity 
+       FROM cart c
+       LEFT JOIN products p ON c.product_id = p.product_id
+       WHERE c.user_id = ?`,
+      [userId]
+    );
+
+    res.json({ success: true, items });
+  } catch (err) {
+    console.error('Ошибка получения корзины:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  } finally {
+    db.end();
+  }
+});
+// Удаление товара из корзины
+app.delete('/api/cart/remove/:id', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    const [existingItems] = await db.query(
+      'SELECT * FROM cart WHERE id = ? AND user_id = ?',
+      [id, userId]
+    );
+
+    if (existingItems.length === 0) {
+      return res.status(404).json({ success: false, error: 'Товар не найден в корзине' });
+    }
+
+    await db.query('DELETE FROM cart WHERE id = ?', [id]);
+
+    res.json({ success: true, message: 'Товар удален из корзины' });
+  } catch (err) {
+    console.error('Ошибка удаления из корзины:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  } finally {
+    db.end();
+  }
+});
+// Добавление товара в корзину с проверкой наличия
+app.post('/api/cart/add', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { product_id, product_name, price, quantity } = req.body;
+    const userId = req.user.userId;
+
+    // Проверяем наличие товара
+    const [product] = await db.query(
+      'SELECT stock_quantity FROM products WHERE product_id = ?',
+      [product_id]
+    );
+
+    if (product.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Товар не найден' 
+      });
+    }
+
+    const availableQuantity = product[0].stock_quantity;
+    const [existingItems] = await db.query(
+      'SELECT * FROM cart WHERE user_id = ? AND product_id = ?',
+      [userId, product_id]
+    );
+
+    // Рассчитываем общее количество в корзине (существующее + новое)
+    const totalInCart = existingItems.length > 0 
+      ? existingItems[0].quantity + quantity 
+      : quantity;
+
+    if (totalInCart > availableQuantity) {
+      return res.status(400).json({
+        success: false,
+        error: `Недостаточно товара в наличии. Доступно: ${availableQuantity}`,
+        available: availableQuantity
+      });
+    }
+
+    if (existingItems.length > 0) {
+      await db.query(
+        'UPDATE cart SET quantity = quantity + ? WHERE id = ?',
+        [quantity, existingItems[0].id]
+      );
+    } else {
+      await db.query(
+        'INSERT INTO cart (user_id, product_id, product_name, price, quantity) VALUES (?, ?, ?, ?, ?)',
+        [userId, product_id, product_name, price, quantity]
+      );
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Товар добавлен в корзину',
+      available: availableQuantity - totalInCart
+    });
+  } catch (err) {
+    console.error('Ошибка добавления в корзину:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера' 
+    });
+  } finally {
+    db.end();
+  }
+});
+
+// Обновление количества товара в корзине с проверкой наличия
+app.put('/api/cart/update/:id', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+    const userId = req.user.userId;
+
+    // Получаем текущий товар в корзине
+    const [existingItems] = await db.query(
+      'SELECT * FROM cart WHERE id = ? AND user_id = ?',
+      [id, userId]
+    );
+
+    if (existingItems.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Товар не найден в корзине' 
+      });
+    }
+
+    const item = existingItems[0];
+    
+    // Проверяем наличие товара
+    const [product] = await db.query(
+      'SELECT stock_quantity FROM products WHERE product_id = ?',
+      [item.product_id]
+    );
+
+    if (product.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Товар больше не доступен' 
+      });
+    }
+
+    const availableQuantity = product[0].stock_quantity;
+
+    if (quantity > availableQuantity) {
+      return res.status(400).json({
+        success: false,
+        error: `Недостаточно товара в наличии. Доступно: ${availableQuantity}`,
+        available: availableQuantity
+      });
+    }
+
+    if (quantity <= 0) {
+      await db.query('DELETE FROM cart WHERE id = ?', [id]);
+    } else {
+      await db.query(
+        'UPDATE cart SET quantity = ? WHERE id = ?',
+        [quantity, id]
+      );
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Корзина обновлена',
+      available: availableQuantity - quantity
+    });
+  } catch (err) {
+    console.error('Ошибка обновления корзины:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера' 
+    });
+  } finally {
+    db.end();
+  }
+});
+
+// Оформление заказа с обновлением остатков
+app.post('/api/checkout', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const userId = req.user.userId;
+    
+    // Получаем корзину с информацией о товарах
+    const [cartItems] = await db.query(
+      `SELECT c.*, p.main_image, p.product_code, p.stock_quantity 
+       FROM cart c
+       JOIN products p ON c.product_id = p.product_id
+       WHERE c.user_id = ?`,
+      [userId]
+    );
+
+    if (cartItems.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Корзина пуста' 
+      });
+    }
+
+    // Проверяем наличие всех товаров
+    for (const item of cartItems) {
+      if (item.stock_quantity < item.quantity) {
+        return res.status(400).json({
+          success: false,
+          error: `Недостаточно товара "${item.product_name}" в наличии. Доступно: ${item.stock_quantity}`,
+          product_id: item.product_id,
+          available: item.stock_quantity
+        });
+      }
+    }
+
+    // Начинаем транзакцию
+    await db.query('START TRANSACTION');
+
+    // Рассчитываем общую сумму
+    const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Создаем заказ
+    const [orderResult] = await db.query(
+      'INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, ?)',
+      [userId, totalAmount, 'Новый']
+    );
+    
+    const orderId = orderResult.insertId;
+
+    // Добавляем товары в заказ и обновляем остатки (разделенные запросы)
+    for (const item of cartItems) {
+      // Вставляем запись о товаре в заказе
+      await db.query(
+        `INSERT INTO order_items (order_id, product_id, product_name, price, quantity) 
+         VALUES (?, ?, ?, ?, ?)`,
+        [orderId, item.product_id, item.product_name, item.price, item.quantity]
+      );
+      
+      // Обновляем количество товара на складе
+      await db.query(
+        `UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?`,
+        [item.quantity, item.product_id]
+      );
+    }
+
+    // Очищаем корзину
+    await db.query('DELETE FROM cart WHERE user_id = ?', [userId]);
+
+    // Фиксируем транзакцию
+    await db.query('COMMIT');
+
+    res.json({ 
+      success: true, 
+      message: 'Заказ успешно оформлен',
+      orderId: orderId,
+      totalAmount: totalAmount
+    });
+  } catch (err) {
+    // Откатываем транзакцию при ошибке
+    await db.query('ROLLBACK');
+    console.error('Ошибка оформления заказа:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера при оформлении заказа',
+      details: err.message
+    });
+  } finally {
+    db.end();
+  }
+});
+
+// Добавление товара в список сравнений
+app.post('/api/compare/add', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { product_id, category_id } = req.body;
+    const userId = req.user.userId;
+
+    // Проверяем, существует ли уже такой товар в списке сравнений пользователя
+    const [existing] = await db.query(
+      'SELECT * FROM product_comparisons WHERE user_id = ? AND product_id = ?',
+      [userId, product_id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({ 
+        success: false, 
+        error: 'Товар уже в списке сравнений' 
+      });
+    }
+
+    // Добавляем товар в список сравнений
+    await db.query(
+      'INSERT INTO product_comparisons (user_id, product_id, category_id) VALUES (?, ?, ?)',
+      [userId, product_id, category_id]
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Товар добавлен в список сравнений' 
+    });
+  } catch (err) {
+    console.error('Ошибка добавления в сравнения:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера' 
+    });
+  } finally {
+    db.end();
+  }
+});
+
+// Удаление товара из списка сравнений
+app.delete('/api/compare/remove', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { product_id } = req.body;
+    const userId = req.user.userId;
+
+    // Удаляем товар из списка сравнений
+    const [result] = await db.query(
+      'DELETE FROM product_comparisons WHERE user_id = ? AND product_id = ?',
+      [userId, product_id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Товар не найден в списке сравнений' 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Товар удален из списка сравнений' 
+    });
+  } catch (err) {
+    console.error('Ошибка удаления из сравнений:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера' 
+    });
+  } finally {
+    db.end();
+  }
+});
+
+// Проверка наличия товара в списке сравнений
+app.get('/api/compare/check', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { product_id } = req.query;
+    const userId = req.user.userId;
+
+    const [result] = await db.query(
+      'SELECT id FROM product_comparisons WHERE user_id = ? AND product_id = ?',
+      [userId, product_id]
+    );
+
+    res.json({ 
+      success: true, 
+      inCompareList: result.length > 0 
+    });
+  } catch (err) {
+    console.error('Ошибка проверки сравнений:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера' 
+    });
+  } finally {
+    db.end();
+  }
 });
 
 // Обработка 404
