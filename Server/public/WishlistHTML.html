@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
     <header>
         <div class="menu">
             <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                <a href="WishlistHTML.html">Закладки</a>
+                <a href="Wishlist.html">Закладки</a>
                 <a href="CompareHTML.html">Сравнение</a>
                 <a href="BasketHTML.html">Корзина</a>
                 <div style="white-space: nowrap;">
@@ -35,7 +35,6 @@
                 <button class="tab-btn active" onclick="showTab('login')">Вход</button>
                 <button class="tab-btn" onclick="showTab('register')">Регистрация</button>
             </div>
-
             <div id="login" class="tab-content">
                 <h3>Вход</h3>
                 <form id="loginForm">
@@ -51,7 +50,6 @@
                     <button type="submit" class="btn-submit">Войти</button>
                 </form>
             </div>
-
             <div id="register" class="tab-content" style="display: none;">
                 <h3>Регистрация</h3>
                 <form id="registerForm">
@@ -98,19 +96,7 @@
             <div id="searchResults" class="search-results">
                 <!-- Результаты будут вставлены сюда -->
             </div>
-            <div class="compare-container">
-                <div class="category-selector">
-                    <button id="categoryDropdownBtn">Выберите категорию ▼</button>
-                    <div id="categoryDropdown" class="dropdown-content">
-                    <!-- Категории будут загружены динамически -->
-                    </div>
-                </div>
-                <div id="compareResults">
-                    <!-- Результаты сравнения будут здесь -->
-                </div>
-            </div>
         </div>
-    </div>
     <script>
         // Глобальные переменные
         let currentUser = null;
@@ -311,6 +297,78 @@
          });
     </script>
     <script>
+        // Функция для отображения товаров
+        function displayProducts(products, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p>Товары не найдены</p>';
+                return;
+            }
+            
+            container.innerHTML = products.map(product => `
+                <div class="product">
+                    <a href="product.html?id=${product.product_id}" onclick="saveCategoryContext()">
+                        <img src="${escapeHtml(product.main_image || 'pictures/no-image.png')}" 
+                            alt="${escapeHtml(product.product_name)}">
+                        <div class="product-title">${escapeHtml(product.product_name)}</div>
+                    </a>
+                    <div class="rating-stars" data-rating="${product.rating || 0}">
+                        <span class="star" data-value="1">&#9733;</span>
+                        <span class="star" data-value="2">&#9733;</span>
+                        <span class="star" data-value="3">&#9733;</span>
+                        <span class="star" data-value="4">&#9733;</span>
+                        <span class="star" data-value="5">&#9733;</span>
+                    </div>
+                    <div class="price">${product.price.toLocaleString('ru-RU')} ₽</div> 
+                </div>
+            `).join('');
+            
+            // Инициализация рейтинга
+            initRatings();
+        }
+
+        // Новая функция для сохранения контекста категории
+        function saveCategoryContext() {
+            const currentCategory = document.getElementById('category-title').textContent;
+            if (currentCategory && currentCategory !== 'Бренды') {
+                sessionStorage.setItem('lastCategory', currentCategory);
+            }
+        }
+
+        // Загрузка новинок
+        async function loadNewProducts() {
+            try {
+                const response = await fetch('/api/products/new');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayProducts(data.products, 'new-products-grid');
+                } else {
+                    console.error('Ошибка загрузки новинок:', data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки новинок:', error);
+            }
+        }
+
+        // Загрузка лидеров продаж
+        async function loadTopProducts() {
+            try {
+                const response = await fetch('/api/products/top');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayProducts(data.products, 'top-products-grid');
+                } else {
+                    console.error('Ошибка загрузки лидеров продаж:', data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки лидеров продаж:', error);
+            }
+        }
+    </script>
+    <script>
         document.querySelectorAll('.catalog a, .top-nav a').forEach(link => {
             link.addEventListener('click', function(e) {
                 // Только для ссылок, которые не ведут на ту же страницу
@@ -325,6 +383,7 @@
         });
     </script>
     <script>
+        // Добавим в конец script секции в MainHTML.html
         async function loadCategories() {
             try {
                 const response = await fetch('/api/categories');
@@ -397,6 +456,8 @@
             `;
 
             a.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await loadProductsByCategory(category.category_id, category.category_name);
                 sessionStorage.setItem('lastCategoryId', category.category_id);
                 sessionStorage.setItem('lastCategory', category.category_name);
                 // Переходим на страницу
@@ -411,6 +472,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('resetSearch').style.display = 'none';
             checkAuth();
+            loadNewProducts();
+            loadTopProducts();
             loadCategories();
 
             const backButton = document.querySelector('.back-to-brands');
@@ -560,222 +623,6 @@
                 navigateTo(currentPageTitle, currentUrl);
             }
         });
-    </script>
-    <script>
-        // Загрузка категорий для сравнения
-        async function loadCompareCategories() {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                openModal();
-                alert('Для сравнения товаров необходимо войти в систему');
-                return;
-            }
-
-            const response = await fetch('/api/compare/categories', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-            });
-            const data = await response.json();
-
-            if (!response.ok) {
-            throw new Error(data.error || 'Ошибка загрузки категорий');
-            }
-
-            const dropdown = document.getElementById('categoryDropdown');
-            dropdown.innerHTML = '';
-
-            if (data.categories.length === 0) {
-            dropdown.innerHTML = '<div class="dropdown-item">Нет товаров для сравнения</div>';
-            return;
-            }
-
-            data.categories.forEach(category => {
-            const item = document.createElement('div');
-            item.className = 'dropdown-item';
-            item.textContent = category.category_name;
-            item.addEventListener('click', () => loadCompareProducts(category.category_id));
-            dropdown.appendChild(item);
-            });
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert(error.message);
-        }
-        }
-
-        // Загрузка товаров и характеристик для сравнения
-        async function loadCompareProducts(categoryId) {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-            window.location.href = '/';
-            return;
-            }
-
-            const response = await fetch(`/api/compare/products/${categoryId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-            });
-            const data = await response.json();
-
-            if (!response.ok) {
-            throw new Error(data.error || 'Ошибка загрузки данных для сравнения');
-            }
-
-            renderComparisonTable(data);
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert(error.message);
-        }
-        }
-
-        // Отрисовка таблицы сравнения
-        function renderComparisonTable(data) {
-            const container = document.getElementById('compareResults');
-            container.innerHTML = '';
-
-            if (data.products.length === 0) {
-                container.innerHTML = '<p>Нет товаров для сравнения</p>';
-                return;
-            }
-            // Создаем обертку для таблицы с прокруткой
-            const tableWrapper = document.createElement('div');
-            tableWrapper.className = 'table-wrapper';
-
-            // Создаем таблицу
-            const table = document.createElement('table');
-            table.className = 'compare-table';
-
-            // 1. Заголовок с названиями товаров
-            const headerRow = document.createElement('tr');
-            const emptyHeader = document.createElement('th');
-            headerRow.appendChild(emptyHeader);
-
-            data.products.forEach(product => {
-                const th = document.createElement('th');
-                th.innerHTML = `
-                <div class="product-header">
-                    <img src="${product.main_image || 'pictures/no-image.png'}" alt="${product.product_name}">
-                    <h3>${product.product_name}</h3>
-                    <div class="product-price">${product.price.toLocaleString('ru-RU')} ₽</div>
-                    <button class="remove-compare-btn" data-product-id="${product.product_id}">Удалить</button>
-                </div>
-                `;
-                headerRow.appendChild(th);
-            });
-            table.appendChild(headerRow);
-
-            // 2. Строки с характеристиками
-            data.specKeys.forEach(specKey => {
-                const row = document.createElement('tr');
-                const specNameCell = document.createElement('td');
-                specNameCell.textContent = formatSpecName(specKey);
-                row.appendChild(specNameCell);
-
-                data.products.forEach(product => {
-                    const specValueCell = document.createElement('td');
-                    specValueCell.textContent = product.specs[specKey] || '—';
-                    row.appendChild(specValueCell);
-                });
-
-                table.appendChild(row);
-            });
-            tableWrapper.appendChild(table);
-            container.appendChild(table);
-
-            document.querySelectorAll('.remove-compare-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const productId = e.target.getAttribute('data-product-id');
-                    try {
-                        const token = localStorage.getItem('token');
-                        if (!token) {
-                        openModal();
-                        alert('Для удаления товара необходимо войти в систему');
-                        return;
-                        }
-                        const response = await fetch(`/api/compare/remove`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ product_id: productId })
-                        });
-                        const result = await response.json();
-                        if (!response.ok) {
-                        throw new Error(result.error || 'Ошибка удаления товара');
-                        }
-                        
-                        // Перезагружаем таблицу сравнения
-                        loadCompareProducts(data.categoryId);
-                    } catch (error) {
-                        console.error('Ошибка удаления товара:', error);
-                        alert(error.message);
-                    }
-                });
-            });
-            }
-            const specTranslations = {
-                'software': 'Программное обеспечение',
-                'connection_type': 'Тип подключения',
-                'material': 'Материал',
-                'lighting': 'Подсветка',
-                'charging_time': 'Время зарядки, ч',
-                'buttons_count': 'Кол-во кнопок',
-                'dpi': 'Максимальная чувствительность',
-                'sensor_type': 'Модель сенсора',
-                'interface': 'Интерфейс',
-                'key_switch_type': 'Модель переключателей',
-                'key_layout': 'Раскладка клавиатуры',
-                'key_count': 'Кол-во клавиш',
-                'backlight': 'Подсветка',
-                'keycap_material': 'Материал кейкапов',
-                'frame_material': 'Материал плейта',
-                'dimensions': 'Размер в мм',
-                'weight': 'Вес, гр',
-                'polling_rate': 'Частота опроса, гц',
-                'actuation_force': 'Сила нажатия, гр',
-                'travel_distance': 'Длина пути, мм',
-                'anti_ghosting': 'Анти-гостинг',
-                'n_key_rollover': 'Роллер',
-                'water_resistance': 'Защита от воды',
-                'cable_length': 'Длина кабеля, см',
-                'battery_life': 'Ёмкость аккумулятора, mah',
-                'compatibility': 'Операционная система',
-                'additional_features': 'Прочие функции',
-            };
-            // Форматирование названий характеристик (замените на вашу логику)
-            function formatSpecName(specKey) {
-                if (specTranslations[specKey]) {
-                    return specTranslations[specKey];
-                }
-                return specKey
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, l => l.toUpperCase());
-                }
-
-            // Инициализация при загрузке страницы
-            document.addEventListener('DOMContentLoaded', () => {
-            // Обработчик выпадающего списка
-            document.getElementById('categoryDropdownBtn').addEventListener('click', function() {
-                document.getElementById('categoryDropdown').classList.toggle('show');
-            });
-
-            // Закрытие выпадающего списка при клике вне его
-            window.addEventListener('click', function(e) {
-                if (!e.target.matches('#categoryDropdownBtn')) {
-                const dropdown = document.getElementById('categoryDropdown');
-                if (dropdown.classList.contains('show')) {
-                    dropdown.classList.remove('show');
-                }
-                }
-            });
-
-            // Загружаем категории для сравнения
-            loadCompareCategories();
-            });
     </script>
     <script>
         // Поиск товаров
@@ -982,7 +829,106 @@
             }
         }
 
-        
+        // Новая функция для загрузки брендов
+        async function loadBrands() {
+        try {
+            // Настраиваем UI
+            document.getElementById('category-products').style.display = 'block';
+            document.getElementById('category-title').textContent = 'Бренды';
+            document.getElementById('new-products').style.display = 'none';
+            document.getElementById('top-products').style.display = 'none';
+
+            // Скрываем кнопку "Назад"
+            const backButton = document.querySelector('.back-to-brands');
+            backButton.style.display = 'none';
+
+            // Запрашиваем бренды с сервера
+            const response = await fetch('/api/brands');
+            const data = await response.json();
+
+            if (data.success && data.brands.length > 0) {
+                displayBrands(data.brands);
+            } else {
+            document.getElementById('category-products-grid').innerHTML = 
+                '<p>Бренды не найдены</p>';
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки брендов:', error);
+            document.getElementById('category-products-grid').innerHTML = 
+            '<p>Ошибка загрузки брендов</p>';
+        }
+        }
+
+        // Функция отображения брендов
+        function displayBrands(brands) {
+        const container = document.getElementById('category-products-grid');
+        container.innerHTML = brands.map(brand => `
+            <div class="product brand-card" data-brand-id="${brand.id}">
+                <div class="brand-clickable">
+                    <img src="${brand.logo || 'pictures/no-image.png'}" 
+                        alt="${escapeHtml(brand.name)}"
+                        class="brand-logo">
+                    <div class="brand-title">${escapeHtml(brand.name)}</div>
+                </div>
+            ${brand.description ? `
+                <div class="brand-description">
+                ${escapeHtml(brand.description)}
+                </div>
+            ` : ''}
+            </div>
+        `).join('');
+
+        // Добавляем обработчики кликов
+        document.querySelectorAll('.brand-clickable').forEach(el => {
+            el.addEventListener('click', function() {
+                const brandCard = this.closest('.brand-card');
+                const brandId = brandCard.getAttribute('data-brand-id');
+                const brandName = this.querySelector('.brand-title').textContent;
+                loadProductsByBrand(brandId, brandName);
+            });
+        });
+        }
+
+        // Новая функция для загрузки товаров бренда
+        async function loadProductsByBrand(brandId, brandName) {
+        try {
+            // Настраиваем UI
+            document.getElementById('category-products').style.display = 'block';
+            document.getElementById('category-title').textContent = `Товары бренда: ${brandName}`;
+            document.getElementById('new-products').style.display = 'none';
+            document.getElementById('top-products').style.display = 'none';
+
+            // Показываем кнопку "Назад"
+            const backButton = document.querySelector('.back-to-brands');
+            backButton.style.display = 'block';
+
+            // Обработчик кнопки "Назад"
+            document.querySelector('.back-to-brands').addEventListener('click', () => {
+            loadBrands();
+            });
+
+            // Запрашиваем товары бренда
+            const response = await fetch(`/api/products/brands/${brandId}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Ошибка сервера');
+            }
+
+            if (data.success && data.products.length > 0) {
+            displayProducts(data.products, 'category-products-grid');
+            } else {
+            document.getElementById('category-products-grid').innerHTML = 
+                `<p>Нет товаров бренда ${brandName}</p>`;
+            }
+        } 
+            catch (error) {
+            console.error('Ошибка загрузки товаров бренда:', error);
+            document.getElementById('category-products-grid').innerHTML = 
+                '<p>Ошибка загрузки товаров</p>';
+            }
+        }
+
         // Обработка ошибок поиска
         function showSearchError(message) {
             const resultsContainer = document.getElementById('searchResults');

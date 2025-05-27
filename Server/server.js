@@ -946,6 +946,293 @@ app.get('/api/compare/check', authenticateJWT, async (req, res) => {
   }
 });
 
+// Получение списка категорий для сравнения
+app.get('/api/compare/categories', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const userId = req.user.userId;
+    
+    // Получаем уникальные категории из списка сравнений пользователя
+    const [categories] = await db.query(`
+      SELECT DISTINCT c.category_id, c.category_name 
+      FROM product_comparisons pc
+      JOIN categories c ON pc.category_id = c.category_id
+      WHERE pc.user_id = ?
+    `, [userId]);
+
+    res.json({ success: true, categories });
+  } catch (err) {
+    console.error('Ошибка получения категорий для сравнения:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  } finally {
+    db.end();
+  }
+});
+
+// Получение характеристик товаров для сравнения по категории
+app.get('/api/compare/products/:categoryId', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { categoryId } = req.params;
+    const userId = req.user.userId;
+
+    // 1. Получаем список товаров для сравнения в этой категории
+    const [products] = await db.query(`
+      SELECT p.* 
+      FROM product_comparisons pc
+      JOIN products p ON pc.product_id = p.product_id
+      WHERE pc.user_id = ? AND pc.category_id = ?
+    `, [userId, categoryId]);
+
+    if (products.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Товар удалён' 
+      });
+    }
+
+    // 2. Определяем таблицу характеристик для этой категории
+    const [category] = await db.query(
+      'SELECT specs_table FROM categories WHERE category_id = ?',
+      [categoryId]
+    );
+
+    if (!category[0]?.specs_table) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Таблица характеристик не найдена для этой категории' 
+      });
+    }
+
+    const specsTable = category[0].specs_table;
+
+    // 3. Получаем характеристики для каждого товара
+    const productsWithSpecs = await Promise.all(products.map(async (product) => {
+      const [specs] = await db.query(
+        `SELECT * FROM ${specsTable} WHERE product_id = ?`,
+        [product.product_id]
+      );
+      return {
+        ...product,
+        specs: specs[0] || {}
+      };
+    }));
+
+    // 4. Получаем список всех возможных характеристик для этой категории
+    const [allSpecs] = await db.query(`
+      SELECT COLUMN_NAME 
+      FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_NAME = ? AND COLUMN_NAME NOT IN ('product_id', 'id', 'created_at', 'updated_at', 'category_id')
+      ORDER BY ORDINAL_POSITION
+    `, [specsTable]);
+
+    const specKeys = allSpecs.map(spec => spec.COLUMN_NAME);
+
+    res.json({ 
+      success: true, 
+      products: productsWithSpecs,
+      specKeys,
+      categoryName: category[0].category_name
+    });
+  } catch (err) {
+    console.error('Ошибка получения характеристик для сравнения:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  } finally {
+    db.end();
+  }
+});
+
+// Получение отзывов о товаре
+app.get('/api/product/:id/reviews', async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { id } = req.params;
+    
+    const [reviews] = await db.query(`
+      SELECT 
+        r.review_id,
+        r.product_id,
+        r.user_id,
+        r.rating,
+        r.pros,
+        r.cons,
+        r.comment,
+        r.created_at,
+        u.username as author
+      FROM reviews r
+      JOIN users u ON r.user_id = u.id
+      WHERE r.product_id = ?
+      ORDER BY r.created_at DESC
+    `, [id]);
+
+    const [stats] = await db.query(`
+      SELECT 
+        COUNT(*) as total_reviews,
+        AVG(rating) as average_rating,
+        SUM(CASE WHEN rating >= 4 THEN 1 ELSE 0 END) as recommended_count
+      FROM reviews
+      WHERE product_id = ?
+    `, [id]);
+
+    db.end();
+
+    res.json({ 
+      success: true,
+      reviews,
+      stats: {
+        total_reviews: stats[0].total_reviews || 0,
+        average_rating: parseFloat(stats[0].average_rating) || 0,
+        recommended_percentage: stats[0].total_reviews > 0 
+          ? Math.round((stats[0].recommended_count / stats[0].total_reviews) * 100)
+          : 0
+      }
+    });
+  } catch (err) {
+    console.error('Ошибка получения отзывов:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера при получении отзывов' 
+    });
+    if (db && db.end) db.end();
+  }
+});
+
+// Добавление отзыва
+app.post('/api/reviews/add', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { product_id, rating, pros, cons, comment } = req.body; // Получаем 3 отдельных поля
+    const user_id = req.user.userId;
+
+    // Валидация
+    if (!product_id || !rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Укажите рейтинг от 1 до 5' 
+      });
+    }
+
+    // Проверка существования товара
+    const [product] = await db.query(
+      'SELECT 1 FROM products WHERE product_id = ?',
+      [product_id]
+    );
+
+    if (product.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Товар не найден' 
+      });
+    }
+
+    // Проверка дубликата отзыва
+    const [existing] = await db.query(
+      'SELECT 1 FROM reviews WHERE user_id = ? AND product_id = ?',
+      [user_id, product_id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({ 
+        success: false, 
+        error: 'Вы уже оставляли отзыв на этот товар' 
+      });
+    }
+
+    // Добавление отзыва с тремя полями
+    await db.query(
+      `INSERT INTO reviews 
+       (product_id, user_id, rating, pros, cons, comment) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [product_id, user_id, rating, pros || null, cons || null, comment || null]
+    );
+
+    // Обновляем рейтинг товара
+    await db.query(`
+      UPDATE products p SET
+        rating = (SELECT AVG(rating) FROM reviews WHERE product_id = p.product_id),
+        reviews_count = (SELECT COUNT(*) FROM reviews WHERE product_id = p.product_id)
+      WHERE p.product_id = ?
+    `, [product_id]);
+
+    res.json({ 
+      success: true,
+      message: 'Отзыв сохранён'
+    });
+  } catch (err) {
+    console.error('Ошибка:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера' 
+    });
+  } finally {
+    db.end();
+  }
+});
+
+// Получение характеристик товара
+app.get('/api/product/:id/specs', async (req, res) => {
+    const db = await createDbConnection();
+    try {
+        const { id } = req.params;
+        
+        // 1. Сначала получаем категорию товара
+        const [product] = await db.query(
+            'SELECT category_id FROM products WHERE product_id = ?',
+            [id]
+        );
+        
+        if (product.length === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Товар не найден' 
+            });
+        }
+        
+        const categoryId = product[0].category_id;
+        
+        // 2. Получаем название таблицы характеристик для этой категории
+        const [category] = await db.query(
+            'SELECT specs_table FROM categories WHERE category_id = ?',
+            [categoryId]
+        );
+        
+        if (!category[0]?.specs_table) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Характеристики не найдены для этой категории' 
+            });
+        }
+        
+        const specsTable = category[0].specs_table;
+        
+        // 3. Получаем характеристики товара
+        const [specs] = await db.query(
+            `SELECT * FROM ${specsTable} WHERE product_id = ?`,
+            [id]
+        );
+        
+        if (specs.length === 0) {
+            return res.json({ 
+                success: true, 
+                specs: {} 
+            });
+        }
+        
+        res.json({ 
+            success: true, 
+            specs: specs[0] 
+        });
+    } catch (err) {
+        console.error('Ошибка получения характеристик:', err);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Ошибка сервера' 
+        });
+    } finally {
+        db.end();
+    }
+});
+
 // Обработка 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Не найдено' });

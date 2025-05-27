@@ -11,7 +11,7 @@
     <header>
         <div class="menu">
             <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                <a href="">Закладки</a>
+                <a href="WishlistHTML.html">Закладки</a>
                 <a href="CompareHTML.html">Сравнение</a>
                 <a href="BasketHTML.html">Корзина</a>
                 <div style="white-space: nowrap;">
@@ -758,7 +758,7 @@
         function createCategoryElement(category) {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.href = `/products.html?category=${category.category_id}`;
+            a.href = `/MainHTML.html?category=${category.category_id}`;
             
             // Используем иконку из базы данных или дефолтную
             const iconSrc = category.icon_class ? 

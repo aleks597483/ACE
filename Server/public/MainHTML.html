@@ -11,7 +11,7 @@
     <header>
         <div class="menu">
             <nav class="top-nav">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                <a href="">Закладки</a>
+                <a href="WishlistHTML.html">Закладки</a>
                 <a href="CompareHTML.html">Сравнение</a>
                 <a href="BasketHTML.html">Корзина</a>
                 <div style="white-space: nowrap;">
@@ -525,7 +525,7 @@
         function createCategoryElement(category) {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.href = `/products.html?category=${category.category_id}`;
+            a.href = `/MainHTML.html?category=${category.category_id}`;
             
             // Используем иконку из базы данных или дефолтную
             const iconSrc = category.icon_class ? 
@@ -550,27 +550,6 @@
             li.appendChild(a);
             return li;
         }
-
-        // Инициализируем загрузку категорий при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('resetSearch').style.display = 'none';
-            checkAuth();
-            loadNewProducts();
-            loadTopProducts();
-            loadCategories();
-
-            const backButton = document.querySelector('.back-to-brands');
-            if (backButton) {
-                backButton.style.display = 'none';
-            }
-            // Обработка параметра category из URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const categoryId = urlParams.get('category');
-            if (categoryId) {
-                loadProductsByCategory(categoryId, sessionStorage.getItem('lastCategory'));
-            }
-            initBreadcrumbs();
-        });
     </script>
     <script>
         // Глобальная переменная для хранения истории
@@ -1028,7 +1007,26 @@
                 suggestionsContainer.style.display = 'none';
             }
         });
+        // Инициализируем загрузку категорий при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('resetSearch').style.display = 'none';
+            checkAuth();
+            loadNewProducts();
+            loadTopProducts();
+            loadCategories();
 
+            const backButton = document.querySelector('.back-to-brands');
+            if (backButton) {
+                backButton.style.display = 'none';
+            }
+            // Обработка параметра category из URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryId = urlParams.get('category');
+            if (categoryId) {
+                loadProductsByCategory(categoryId, sessionStorage.getItem('lastCategory'));
+            }
+            initBreadcrumbs();
+        });
         // Экранирование HTML
         function escapeHtml(unsafe) {
             return unsafe
