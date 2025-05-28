@@ -18,9 +18,9 @@
                     <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
                     8(952)&nbsp;570-76-95
                 </div>
-                <a href="">Самовывоз</a>
-                <a href="">Доставка</a>
-                <a href="">Оплата</a>
+                <a href="PickupHTML.html">Самовывоз</a>
+                <a href="DeliveryHTML.html">Доставка</a>
+                <a href="PaymentHTML.html">Оплата</a>
                 <a href="MainHTML.html">Главная</a>
             </nav>
         </div>
@@ -33,70 +33,221 @@
             </a>
             <ul>
                 <h3>Меню</h3>
-                <li><a href="AccountHTML.html">Личные данные</a></li>
-                <li><a href="BasketHTML.html">Мои заказы</a></li>
+                <li><a href="#" id="personalDataTab">Личные данные</a></li>
+                <li><a href="#" id="ordersTab">Мои заказы</a></li>
                 <li><a href="#" id="logout">Выйти</a></li>
             </ul>
         </aside>
         <div class="content">
             <div class="account-container">
-                <div class="account-header">
-                    <h2>Личный кабинет</h2>
+                <div class="tab-buttons">
+                    <button class="tab-button active" id="personalDataBtn">Личные данные</button>
+                    <button class="tab-button" id="ordersBtn">Мои заказы</button>
                 </div>
-                <form id="accountForm" class="account-form">
-                    <div class="form-group">
-                        <label for="username">Имя</label>
-                        <input type="text" id="username" name="username" required>
+                <!-- Вкладка личных данных -->
+                <div id="personalDataTabContent" class="tab-content active">
+                    <div class="account-header">
+                        <h2>Личные данные</h2>
                     </div>
-                    <div class="form-group">
-                        <label for="subname">Фамилия</label>
-                        <input type="text" id="subname" name="subname" required>
+                    <form id="accountForm" class="account-form">
+                        <div class="form-group">
+                            <label for="username">Имя</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subname">Фамилия</label>
+                            <input type="text" id="subname" name="subname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="currentPassword">Текущий пароль</label>
+                            <input type="password" id="currentPassword" name="currentPassword">
+                            <span class="password-toggle" onclick="togglePassword('currentPassword')">Показать пароль</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">Новый пароль</label>
+                            <input type="password" id="newPassword" name="newPassword">
+                            <span class="password-toggle" onclick="togglePassword('newPassword')">Показать пароль</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Подтвердите пароль</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-cancel">Отмена</button>
+                            <button type="submit" class="btn btn-save">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Вкладка заказов -->
+                <div id="ordersTabContent" class="tab-content">
+                    <div class="account-header">
+                        <h2>Мои заказы</h2>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                    <div id="ordersContainer" class="orders-container">
+                        <!-- Заказы будут загружены динамически -->
                     </div>
-                    <div class="form-group">
-                        <label for="currentPassword">Текущий пароль</label>
-                        <input type="password" id="currentPassword" name="currentPassword">
-                        <span class="password-toggle" onclick="togglePassword('currentPassword')">Показать пароль</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="newPassword">Новый пароль</label>
-                        <input type="password" id="newPassword" name="newPassword">
-                        <span class="password-toggle" onclick="togglePassword('newPassword')">Показать пароль</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmPassword">Подтвердите пароль</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword">
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-cancel">Отмена</button>
-                        <button type="submit" class="btn btn-save">Сохранить</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Меню</h4>
+                <ul>
+                    <li><a href="WishlistHTML.html">Закладки</a></li>
+                    <li><a href="CompareHTML.html">Сравнение</a></li>
+                    <li><a href="BasketHTML.html">Корзина</a></li>
+                    <li><a href="PickupHTML.html">Самовывоз</a></li>
+                    <li><a href="DeliveryHTML.html">Доставка</a></li>
+                    <li><a href="PaymentHTML.html">Оплата</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Контакты</h4>
+                <ul>
+                    <li>
+                        <img src="pictures/Telephone_black.png" alt="Телефон" class="footer-icon">
+                        8(952) 570-76-95
+                    </li>
+                    <li>
+                        <img src="pictures/Email.png" alt="Email" class="footer-icon">
+                        info@4ce-store.ru
+                    </li>
+                    <li>
+                        <img src="pictures/Location.png" alt="Адрес" class="footer-icon">
+                        г. Ростов-на-Дону, ул. Тургеневская, 10/6
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Социальные сети</h4>
+                <div class="social-links">
+                    <a href="https://vk.com/pkcu_college"><img src="pictures/VK.png" alt="VK"></a>
+                    <a href="https://t.me/rksi_ru"><img src="pictures/Telegram.png" alt="Telegram"></a>
+                    <a href="https://vk.com/copprostov"><img src="pictures/YouTube.png" alt="YouTube"></a>
+                </div>
+                <div class="footer-logo">
+                    <a href="/MainHTML.html">
+                        <img src="pictures/4CE.png" alt="4CE Магазин">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 4CE Магазин игровых товаров. Все права защищены.</p>
+        </div>
+    </footer>
     <script>
+        // Функция для переключения вкладок
+        function showTab(tabId) {
+            // Скрываем все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Убираем активный класс у всех кнопок
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Показываем выбранную вкладку
+            document.getElementById(tabId + 'TabContent').classList.add('active');
+            // Добавляем активный класс к выбранной кнопке
+            document.getElementById(tabId + 'Btn').classList.add('active');
+            // Если открывается вкладка заказов, загружаем их
+            if (tabId === 'orders') {
+                loadOrders();
+            }
+        }
+        // Загрузка заказов пользователя
+        async function loadOrders() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) throw new Error('Требуется авторизация');
+                const response = await fetch('http://localhost:3000/api/orders', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Ошибка загрузки заказов');
+                }
+                const data = await response.json();
+                renderOrders(data.orders);
+            } catch (error) {
+                console.error('Ошибка загрузки заказов:', error);
+                document.getElementById('ordersContainer').innerHTML = `
+                    <div class="no-orders">
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        // Отображение заказов
+        function renderOrders(orders) {
+            const container = document.getElementById('ordersContainer');
+            
+            if (!orders || orders.length === 0) {
+                container.innerHTML = `
+                    <div class="no-orders">
+                        <p>У вас пока нет заказов</p>
+                    </div>
+                `;
+                return;
+            }
+            container.innerHTML = orders.map(order => `
+                <div class="order">
+                    <div class="order-header">
+                        <div>
+                            <strong>Заказ #${order.id}</strong>
+                            <div>Дата: ${order.formatted_date}</div>
+                        </div>
+                        <div>
+                            <div>Статус: <span class="status">${order.status}</span></div>
+                            <div>Сумма: ${order.total_amount.toLocaleString('ru-RU')} ₽</div>
+                        </div>
+                    </div>
+                    <div class="order-items">
+                        <h4>Состав заказа:</h4>
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <img src="${item.main_image || 'pictures/no-image.png'}" 
+                                     alt="${escapeHtml(item.product_name)}" 
+                                     class="order-item-image">
+                                <div class="order-item-info">
+                                    <div>${escapeHtml(item.product_name)}</div>
+                                    <div>Количество: ${item.quantity}</div>
+                                </div>
+                                <div class="order-item-price">
+                                    ${item.price.toLocaleString('ru-RU')} ₽ × ${item.quantity} = 
+                                    ${(item.price * item.quantity).toLocaleString('ru-RU')} ₽
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
         // Загрузка данных пользователя при открытии страницы
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) throw new Error('Требуется авторизация');
-
                 const response = await fetch('http://localhost:3000/get-user', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
-                
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.error || 'Ошибка загрузки данных');
                 }
-                
                 const user = await response.json();
                 document.getElementById('username').value = user.username || '';
                 document.getElementById('subname').value = user.subname || '';
@@ -106,33 +257,39 @@
                 window.location.href = 'MainHTML.html';
             }
         });
-
+        // Назначение обработчиков для кнопок вкладок
+        document.getElementById('personalDataBtn').addEventListener('click', () => showTab('personalData'));
+        document.getElementById('ordersBtn').addEventListener('click', () => showTab('orders'));
+        // Назначение обработчиков для ссылок в меню
+        document.getElementById('personalDataTab').addEventListener('click', (e) => {
+            e.preventDefault();
+            showTab('personalData');
+        });
+        document.getElementById('ordersTab').addEventListener('click', (e) => {
+            e.preventDefault();
+            showTab('orders');
+        });
         // Отправка изменений
         document.getElementById('accountForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            
             if (newPassword && newPassword.length < 8) {
                 return alert('Пароль должен содержать минимум 8 символов');
             }
-            
             if (newPassword && newPassword !== confirmPassword) {
                 return alert('Новые пароли не совпадают');
             }
-
             const formData = {
                 username: document.getElementById('username').value,
                 subname: document.getElementById('subname').value,
                 email: document.getElementById('email').value
             };
-
             // Добавляем пароли только если они введены
             if (newPassword) {
                 formData.currentPassword = document.getElementById('currentPassword').value;
                 formData.newPassword = newPassword;
             }
-
             try {
                 const response = await fetch('http://localhost:3000/update-user', {
                 method: 'PUT',
@@ -142,13 +299,10 @@
                 },
                 body: JSON.stringify(formData)
                 });
-
                 const result = await response.json();
-                
                 if (!response.ok) {
                 throw new Error(result.error || 'Ошибка обновления данных');
                 }
-
                 alert('Данные успешно обновлены');
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
@@ -157,7 +311,6 @@
                 alert(error.message);
             }
         });
-
         // Выход из аккаунта
         document.getElementById('logout').addEventListener('click', (e) => {
             e.preventDefault();
@@ -165,7 +318,6 @@
             // Очистка всех связанных данных
             window.location.href = 'MainHTML.html';
         });
-
         // Переключение видимости пароля
         function togglePassword(id) {
             const input = document.getElementById(id);

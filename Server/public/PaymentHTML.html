@@ -30,7 +30,6 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-
             <div class="tabs">
                 <button class="tab-btn active" onclick="showTab('login')">Вход</button>
                 <button class="tab-btn" onclick="showTab('register')">Регистрация</button>
@@ -95,20 +94,11 @@
             <div id="searchResults" class="search-results">
                 <!-- Результаты будут вставлены сюда -->
             </div>
-            <div id="wishlist-content">
-                <div class="wishlist-header">
-                    <h2>Мои закладки</h2>
-                </div>
-                <div id="wishlist-items" class="products-grid">
-                    <!-- Здесь будут отображаться избранные товары -->
-                </div>
-                <div id="wishlist-empty" class="wishlist-empty" style="display: none;">
-                    <p>Ваш список избранного пуст</p>
-                    <a href="/MainHTML.html" class="btn">Перейти в каталог</a>
-                </div>
-                <div id="wishlist-auth-required" class="wishlist-empty" style="display: none;">
-                    <p>Для просмотра избранного необходимо авторизоваться</p>
-                    <button onclick="openModal()" class="btn">Войти</button>
+            <div class="text-container">
+                <div class="text-info">
+                    <h3>Оплата:</h3>
+                    <h4>На данный момент развития нашего магазина оплата осуществляется только по месту расположения магазина, наличными или банковской картой.</h4>
+                    <h4>Адрес магазина для самовывоза и оплаты заказа вы можете узнать на вкладке "Самовывоз".</h4>
                 </div>
             </div>
         </div>
@@ -217,8 +207,6 @@
                     <a href="#" id="logoutBtn" class="logout-btn">Выйти</a>
                 `;
                 document.getElementById('logoutBtn').addEventListener('click', logout);
-                // Показываем избранное для авторизованного пользователя
-                loadWishlistItems();
             } else {
                 currentUser = null;
                 authSection.innerHTML = `
@@ -236,133 +224,6 @@
             updateAuthUI(false);
             window.location.reload();
         }
-        // Проверка авторизации при загрузке
-        async function checkAuth() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                updateAuthUI(false);
-                return;
-            }
-            try {
-                const response = await fetch('http://localhost:3000/get-user', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!response.ok) {
-                    if (response.status === 403) {
-                        localStorage.removeItem('token');
-                        throw new Error('Сессия истекла');
-                    }
-                    throw new Error('Ошибка сервера');
-                }
-                const userData = await response.json();
-                updateAuthUI(true, userData);
-            } catch (error) {
-                console.error('Ошибка проверки авторизации:', error);
-                alert(error.message);
-                updateAuthUI(false);
-            }
-        }
-        // Загрузка избранных товаров
-        async function loadWishlistItems() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                return;
-            }
-            try {
-                const response = await fetch('http://localhost:3000/api/wishlist', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error('Ошибка загрузки избранного');
-                }
-                const data = await response.json();
-                if (data.success) {
-                    displayWishlistItems(data.items);
-                } else {
-                    throw new Error(data.error || 'Ошибка загрузки избранного');
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                wishlistItemsContainer.innerHTML = `<p class="error-message">${error.message}</p>`;
-            }
-        }
-        // Отображение избранных товаров
-        function displayWishlistItems(items) {
-            if (!items || items.length === 0) {
-                wishlistItemsContainer.style.display = 'none';
-                wishlistEmptyMessage.style.display = 'block';
-                wishlistAuthRequired.style.display = 'none';
-                return;
-            }
-            wishlistItemsContainer.innerHTML = items.map(item => `
-                <div class="product" data-product-id="${item.product_id}">
-                    <a href="product.html?id=${item.product_id}">
-                        <img src="${escapeHtml(item.main_image || 'pictures/no-image.png')}" 
-                            alt="${escapeHtml(item.product_name)}">
-                        <div class="product-title">${escapeHtml(item.product_name)}</div>
-                    </a>
-                    <div class="rating-stars" data-rating="${item.rating || 0}">
-                        <span class="star" data-value="1">&#9733;</span>
-                        <span class="star" data-value="2">&#9733;</span>
-                        <span class="star" data-value="3">&#9733;</span>
-                        <span class="star" data-value="4">&#9733;</span>
-                        <span class="star" data-value="5">&#9733;</span>
-                    </div>
-                    <div class="price">${item.price.toLocaleString('ru-RU')} ₽</div>
-                    <button class="remove-from-wishlist" onclick="removeFromWishlist(event, ${item.product_id})">
-                        Удалить
-                    </button>
-                </div>
-            `).join('');
-            wishlistItemsContainer.style.display = 'grid';
-            wishlistEmptyMessage.style.display = 'none';
-            wishlistAuthRequired.style.display = 'none';   
-            // Инициализация рейтинга
-            initRatings();
-        }
-        // Удаление товара из избранного
-        async function removeFromWishlist(event, productId) {
-            event.preventDefault();
-            event.stopPropagation();
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('Необходимо авторизоваться');
-                return;
-            }
-            try {
-                const response = await fetch(`http://localhost:3000/api/wishlist/remove/${productId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error('Ошибка удаления из избранного');
-                }
-                const data = await response.json();
-                if (data.success) {
-                    // Удаляем товар из DOM
-                    document.querySelector(`.product[data-product-id="${productId}"]`).remove();
-                    // Проверяем, не пуст ли список избранного
-                    if (document.querySelectorAll('.product').length === 0) {
-                        wishlistItemsContainer.style.display = 'none';
-                        wishlistEmptyMessage.style.display = 'block';
-                    }
-                } else {
-                    throw new Error(data.error || 'Ошибка удаления из избранного');
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert(error.message);
-            }
-        }
         // Поиск товаров
         document.querySelector('.poisk_tovary').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -371,7 +232,8 @@
             if (query) {
                 try {
                     const response = await fetch(`http://localhost:3000/api/search?query=${encodeURIComponent(query)}`);
-                    const data = await response.json();         
+                    const data = await response.json();
+                    
                     if (data.success) {
                         displaySearchResults(data.products, query);
                     } else {
@@ -582,6 +444,41 @@
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
         }
+        // Инициализируем загрузку категорий при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('resetSearch').style.display = 'none';
+            checkAuth();
+            loadCategories();
+        });
+        // Проверка авторизации при загрузке
+        async function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                updateAuthUI(false);
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:3000/get-user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        localStorage.removeItem('token');
+                        throw new Error('Сессия истекла');
+                    }
+                    throw new Error('Ошибка сервера');
+                }
+                const userData = await response.json();
+                updateAuthUI(true, userData);
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
+                alert(error.message);
+                updateAuthUI(false);
+            }
+        }
         // Обработка формы входа
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -655,11 +552,6 @@
             if (e.target === modal) {
                 closeModal();
             }
-        });
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
-            loadCategories();
         });
     </script>
 </body>

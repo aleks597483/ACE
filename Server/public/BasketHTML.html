@@ -18,9 +18,9 @@
                     <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
                     8(952)&nbsp;570-76-95
                 </div>
-                <a href="">Самовывоз</a>
-                <a href="">Доставка</a>
-                <a href="">Оплата</a>
+                <a href="PickupHTML.html">Самовывоз</a>
+                <a href="DeliveryHTML.html">Доставка</a>
+                <a href="PaymentHTML.html">Оплата</a>
                 <div id="authSection">
                     <a href="#" id="authLink" onclick="event.preventDefault(); openModal();">Вход</a>
                 </div>
@@ -30,12 +30,10 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-
             <div class="tabs">
                 <button class="tab-btn active" onclick="showTab('login')">Вход</button>
                 <button class="tab-btn" onclick="showTab('register')">Регистрация</button>
             </div>
-
             <div id="login" class="tab-content">
                 <h3>Вход</h3>
                 <form id="loginForm">
@@ -51,7 +49,6 @@
                     <button type="submit" class="btn-submit">Войти</button>
                 </form>
             </div>
-
             <div id="register" class="tab-content" style="display: none;">
                 <h3>Регистрация</h3>
                 <form id="registerForm">
@@ -125,8 +122,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
             <section id="category-products" style="display: none;">
                 <div class="category-header">
                     <button class="back-to-brands">← Назад к брендам</button>
@@ -135,6 +130,55 @@
                 <div class="products-grid" id="category-products-grid"></div>
             </section>
         </div>
+    </div>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Меню</h4>
+                <ul>
+                    <li><a href="WishlistHTML.html">Закладки</a></li>
+                    <li><a href="CompareHTML.html">Сравнение</a></li>
+                    <li><a href="BasketHTML.html">Корзина</a></li>
+                    <li><a href="PickupHTML.html">Самовывоз</a></li>
+                    <li><a href="DeliveryHTML.html">Доставка</a></li>
+                    <li><a href="PaymentHTML.html">Оплата</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Контакты</h4>
+                <ul>
+                    <li>
+                        <img src="pictures/Telephone_black.png" alt="Телефон" class="footer-icon">
+                        8(952) 570-76-95
+                    </li>
+                    <li>
+                        <img src="pictures/Email.png" alt="Email" class="footer-icon">
+                        info@4ce-store.ru
+                    </li>
+                    <li>
+                        <img src="pictures/Location.png" alt="Адрес" class="footer-icon">
+                        г. Ростов-на-Дону, ул. Тургеневская, 10/6
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Социальные сети</h4>
+                <div class="social-links">
+                    <a href="https://vk.com/pkcu_college"><img src="pictures/VK.png" alt="VK"></a>
+                    <a href="https://t.me/rksi_ru"><img src="pictures/Telegram.png" alt="Telegram"></a>
+                    <a href="https://vk.com/copprostov"><img src="pictures/YouTube.png" alt="YouTube"></a>
+                </div>
+                <div class="footer-logo">
+                    <a href="/MainHTML.html">
+                        <img src="pictures/4CE.png" alt="4CE Магазин">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 4CE Магазин игровых товаров. Все права защищены.</p>
+        </div>
+    </footer>
     <script>
         // Глобальные переменные
         let currentUser = null;
@@ -617,12 +661,10 @@
         // Функция для отображения товаров
         function displayProducts(products, containerId) {
             const container = document.getElementById(containerId);
-            
             if (!products || products.length === 0) {
                 container.innerHTML = '<p>Товары не найдены</p>';
                 return;
             }
-            
             container.innerHTML = products.map(product => `
                 <div class="product">
                     <a href="product.html?id=${product.product_id}" onclick="saveCategoryContext()">
@@ -640,49 +682,8 @@
                     <div class="price">${product.price.toLocaleString('ru-RU')} ₽</div>
                 </div>
             `).join('');
-            
             // Инициализация рейтинга
             initRatings();
-        }
-
-        // Новая функция для сохранения контекста категории
-        function saveCategoryContext() {
-            const currentCategory = document.getElementById('category-title').textContent;
-            if (currentCategory && currentCategory !== 'Бренды') {
-                sessionStorage.setItem('lastCategory', currentCategory);
-            }
-        }
-
-        // Загрузка новинок
-        async function loadNewProducts() {
-            try {
-                const response = await fetch('/api/products/new');
-                const data = await response.json();
-                
-                if (data.success) {
-                    displayProducts(data.products, 'new-products-grid');
-                } else {
-                    console.error('Ошибка загрузки новинок:', data.error);
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки новинок:', error);
-            }
-        }
-
-        // Загрузка лидеров продаж
-        async function loadTopProducts() {
-            try {
-                const response = await fetch('/api/products/top');
-                const data = await response.json();
-                
-                if (data.success) {
-                    displayProducts(data.products, 'top-products-grid');
-                } else {
-                    console.error('Ошибка загрузки лидеров продаж:', data.error);
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки лидеров продаж:', error);
-            }
         }
     </script>
     <script>
@@ -704,7 +705,6 @@
             try {
                 const response = await fetch('/api/categories');
                 const data = await response.json();
-                
                 if (data.success) {
                     displayCategories(data.categories);
                 } else {
@@ -714,37 +714,29 @@
                 console.error('Ошибка загрузки категорий:', error);
             }
         }
-
         function displayCategories(categories) {
             const container = document.getElementById('categories-list');
             const groupedCategories = groupCategoriesByParent(categories);
-            
             // Добавляем корневые категории
             if (groupedCategories[null]) {
                 groupedCategories[null].forEach(category => {
                     const li = createCategoryElement(category);
-                    
                     // Добавляем подкатегории, если они есть
                     if (groupedCategories[category.category_id]) {
                         const subUl = document.createElement('ul');
                         subUl.className = 'subcategories';
-                        
                         groupedCategories[category.category_id].forEach(subCategory => {
                             subUl.appendChild(createCategoryElement(subCategory));
                         });
-                        
                         li.appendChild(subUl);
                     }
-                    
                     container.appendChild(li);
                 });
             }
         }
-
         function groupCategoriesByParent(categories) {
             // Сначала сортируем категории по category_id
             const sortedCategories = [...categories].sort((a, b) => a.category_id - b.category_id);
-            
             return sortedCategories.reduce((acc, category) => {
                 const parentId = category.parent_category_id;
                 if (!acc[parentId]) {
@@ -754,12 +746,10 @@
                 return acc;
             }, {});
         }
-
         function createCategoryElement(category) {
             const li = document.createElement('li');
             const a = document.createElement('a');
             a.href = `/MainHTML.html?category=${category.category_id}`;
-            
             // Используем иконку из базы данных или дефолтную
             const iconSrc = category.icon_class ? 
                 `pictures/${category.icon_class}.png` : 
@@ -770,28 +760,21 @@
                 ${category.category_name}
                 <img src="pictures/Vector 4.png" class="vector-icon">
             `;
-
             a.addEventListener('click', async (e) => {
                 e.preventDefault();
-                await loadProductsByCategory(category.category_id, category.category_name);
                 sessionStorage.setItem('lastCategoryId', category.category_id);
                 sessionStorage.setItem('lastCategory', category.category_name);
                 // Переходим на страницу
                 window.location.href = `/MainHTML.html?category=${category.category_id}`;
             });
-            
             li.appendChild(a);
             return li;
         }
-
         // Инициализируем загрузку категорий при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('resetSearch').style.display = 'none';
             checkAuth();
-            loadNewProducts();
-            loadTopProducts();
             loadCategories();
-
             const backButton = document.querySelector('.back-to-brands');
             if (backButton) {
                 backButton.style.display = 'none';
@@ -799,134 +782,25 @@
             // Обработка параметра category из URL
             const urlParams = new URLSearchParams(window.location.search);
             const categoryId = urlParams.get('category');
-            if (categoryId) {
-                loadProductsByCategory(categoryId, sessionStorage.getItem('lastCategory'));
-            }
-            initBreadcrumbs();
         });
     </script>
     <script>
-        // Глобальная переменная для хранения истории
-        let breadcrumbHistory = [];
-
-        // Инициализация хлебных крошек
-        function initBreadcrumbs() {
-            // Загружаем историю из sessionStorage или создаем новую
-            breadcrumbHistory = JSON.parse(sessionStorage.getItem('breadcrumbs')) || [];
-            
-            // Если есть сохраненная категория (для страницы товара)
-            const lastCategory = sessionStorage.getItem('lastCategory');
-            if (lastCategory && window.location.pathname.includes('product.html')) {
-                // Проверяем, не добавлена ли уже категория
-                const hasCategory = breadcrumbHistory.some(item => item.title === lastCategory);
-                if (!hasCategory) {
-                    // Добавляем категорию перед товаром
-                    const categoryUrl = `/MainHTML.html?category=${sessionStorage.getItem('lastCategoryId')}`;
-                    breadcrumbHistory.push({
-                        title: lastCategory,
-                        url: categoryUrl
-                    });
-                    sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbHistory));
-                }
-            }
-            
-            updateBreadcrumbs();
-        }
-
-        // Обновление отображения крошек
-        function updateBreadcrumbs() {
-            const breadcrumbsContainer = document.getElementById('breadcrumbs');
-            if (!breadcrumbsContainer) return;
-            
-            // Очищаем все, кроме первого элемента (Главная)
-            while (breadcrumbsContainer.children.length > 1) {
-                breadcrumbsContainer.removeChild(breadcrumbsContainer.lastChild);
-            }
-
-            breadcrumbHistory.forEach((item, index) => {
-                // Пропускаем главную страницу, так как она уже есть
-                if (item.url === '/MainHTML.html') return;
-
-                // Создаем разделитель
-                const separator = document.createElement('span');
-                separator.textContent = ' » ';
-                breadcrumbsContainer.appendChild(separator);
-
-                // Создаем элемент крошки
-                const crumb = document.createElement('div');
-                crumb.className = 'breadcrumb-item';
-                crumb.setAttribute('itemprop', 'itemListElement');
-                crumb.setAttribute('itemscope', '');
-                crumb.setAttribute('itemtype', 'https://schema.org/ListItem');
-
-                // Если это последний элемент и мы не на главной - делаем его неактивной ссылкой
-                if (index === breadcrumbHistory.length - 1 && window.location.pathname !== '/MainHTML.html') {
-                    crumb.innerHTML = `
-                        <span class="brmtext" itemprop="item">
-                            <span itemprop="name">${item.title}</span>
-                        </span>
-                        <meta itemprop="position" content="${index + 2}">
-                    `;
-                } else {
-                    crumb.innerHTML = `
-                        <a href="${item.url}" itemprop="item">
-                            <span itemprop="name">${item.title}</span>
-                        </a>
-                        <meta itemprop="position" content="${index + 2}">
-                    `;
-                }
-
-                breadcrumbsContainer.appendChild(crumb);
-            });
-        }
-
         // Добавление новой страницы в историю
         function navigateTo(title, url) {
             // Пропускаем пустые или невалидные URL
             if (!url || url === '#' || url.startsWith('javascript:')) {
                 return;
             }
-
             // Если это главная страница - очищаем историю
             if (url === '/MainHTML.html') {
                 breadcrumbHistory = [];
-            }
-
-            // Не добавляем текущую страницу снова
-            if (breadcrumbHistory.length > 0) {
-                const lastItem = breadcrumbHistory[breadcrumbHistory.length - 1];
-                if (lastItem.url === url) return;
-            }
-
-            // Проверяем, есть ли такая страница в истории
-            const existingIndex = breadcrumbHistory.findIndex(item => item.url === url);
-            
-            // Если страница уже была в истории - это навигация "назад"
-            if (existingIndex >= 0) {
-                breadcrumbHistory = breadcrumbHistory.slice(0, existingIndex + 1);
             } 
-            // Если это новая страница - добавляем
-            else {
-                breadcrumbHistory.push({ title, url });
-                
-                // Ограничиваем максимальную глубину истории
-                const MAX_HISTORY = 4; // Главная + 3 уровня
-                if (breadcrumbHistory.length > MAX_HISTORY) {
-                    breadcrumbHistory = breadcrumbHistory.slice(-MAX_HISTORY);
-                }
-            }
-
-            // Сохраняем и обновляем отображение
-            sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbHistory));
-            updateBreadcrumbs();
         }
-
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             // Добавляем текущую страницу в историю
             const currentPageTitle = document.title;
             const currentUrl = window.location.pathname + window.location.search;
-            
             // Для страницы товара добавляем его название
             if (window.location.pathname.includes('product.html')) {
                 const productName = document.getElementById('product-name')?.textContent;
@@ -945,14 +819,11 @@
         document.querySelector('.poisk_tovary').addEventListener('submit', async function(e) {
             e.preventDefault();
             const query = this.query.value.trim();
-            
             document.getElementById('searchResults').style.display = 'block';
-
             if (query) {
                 try {
                     const response = await fetch(`http://localhost:3000/api/search?query=${encodeURIComponent(query)}`);
                     const data = await response.json();
-                    
                     if (data.success) {
                         displaySearchResults(data.products, query);
                     } else {
@@ -964,32 +835,25 @@
                 }
             }
         });
-
         document.getElementById('resetSearch').addEventListener('click', function() {
             // Очищаем поле ввода
             document.querySelector('.poisk_tovary input').value = '';
-            
             // Скрываем результаты поиска
             document.getElementById('searchResults').innerHTML = '';
             document.getElementById('searchResults').style.display = 'none';
-            
             // Показываем стандартные секции (новинки, топы)
             document.getElementById('new-products').style.display = 'block';
             document.getElementById('top-products').style.display = 'block';
             document.getElementById('category-products').style.display = 'none';
-            
             // Скрываем подсказки автодополнения, если они есть
             suggestionsContainer.style.display = 'none';
         });
-
         function initRatings() {
             document.querySelectorAll('.rating-stars').forEach(ratingContainer => {
                 const rating = parseFloat(ratingContainer.getAttribute('data-rating')) || 0;
                 const stars = Array.from(ratingContainer.querySelectorAll('.star'));
-
                 // Сбрасываем все звезды
                 stars.forEach(star => star.classList.remove('active', 'half-active'));
-
                 // Подсвечиваем слева направо
                 stars.forEach((star, index) => {
                     if (index < rating) {
@@ -998,7 +862,6 @@
                         star.classList.add('half-active');
                     }
                 });
-
                 // Обработка наведения
                 stars.forEach((star, index) => {
                     star.addEventListener('mouseenter', () => {
@@ -1007,28 +870,23 @@
                             s.classList.toggle('hover', i <= index);
                         });
                     });
-
                     star.addEventListener('mouseleave', () => {
                         stars.forEach(s => s.classList.remove('hover'));
                     });
                 });
             });
         }
-
         // Автодополнение
         const searchInput = document.querySelector('.poisk_tovary input[name="query"]');
         const resetBtn = document.getElementById('resetSearch');
         const suggestionsContainer = document.createElement('div');
         suggestionsContainer.className = 'search-suggestions';
         searchInput.parentNode.insertBefore(suggestionsContainer, searchInput.nextSibling);
-
         searchInput.addEventListener('input', function() {
             resetBtn.style.display = this.value.trim() ? 'block' : 'none';
         });
-
         searchInput.addEventListener('input', async function() {
             const query = this.value.trim();
-            
             if (query.length >= 2) {
                 try {
                     const response = await fetch(`/api/search/suggest?query=${encodeURIComponent(query)}`);
@@ -1041,11 +899,9 @@
                 suggestionsContainer.style.display = 'none';
             }
         });
-
         // Отображение результатов поиска
         function displaySearchResults(products, query) {
             const resultsContainer = document.getElementById('searchResults');
-            
             if (!products || products.length === 0) {
                 resultsContainer.innerHTML = `
                     <div class="no-results">
@@ -1054,7 +910,6 @@
                 `;
                 return;
             }
-            
             resultsContainer.innerHTML = `
                 <div class="search-header">
                     <h3>Результаты поиска: "${escapeHtml(query)}"</h3>
@@ -1080,24 +935,19 @@
                     `).join('')}
                 </div>
             `;
-
             // Инициализация рейтинга для новых товаров
             initRatings();
         }
-
         // Показ подсказок автодополнения
         function showSuggestions(suggestions) {
             if (suggestions.length === 0) {
                 suggestionsContainer.style.display = 'none';
                 return;
             }
-            
             suggestionsContainer.innerHTML = suggestions.map(item => `
                 <div class="suggestion-item">${escapeHtml(item)}</div>
             `).join('');
-            
             suggestionsContainer.style.display = 'block';
-            
             // Обработка клика по подсказке
             suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
                 item.addEventListener('click', () => {
@@ -1107,45 +957,6 @@
                 });
             });
         }
-
-        async function loadProductsByCategory(categoryId, categoryName) {
-            try {
-                // Сохраняем ID и название категории
-                sessionStorage.setItem('lastCategoryId', categoryId);
-                sessionStorage.setItem('lastCategory', categoryName);
-
-                // Проверяем, является ли категория "Бренды"
-                if (categoryName.toLowerCase() === 'бренды') {
-                    await loadBrands();
-                    return;
-                }
-                
-                // Показываем секцию с товарами категории
-                document.getElementById('category-products').style.display = 'block';
-                document.getElementById('category-title').textContent = categoryName;
-
-                // Скрываем другие секции (новинки, лидеры продаж)
-                document.getElementById('new-products').style.display = 'none';
-                document.getElementById('top-products').style.display = 'none';
-
-                // Загрузка товаров с сервера
-                const response = await fetch(`/api/products/category/${categoryId}`);
-                const data = await response.json();
-
-                if (data.success && data.products.length > 0) {
-                    displayProducts(data.products, 'category-products-grid');
-                } else {
-                    document.getElementById('category-products-grid').innerHTML = 
-                        '<p>Товары не найдены</p>';
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                document.getElementById('category-products-grid').innerHTML = 
-                    '<p>Ошибка загрузки товаров</p>';
-            }
-        }
-
-        
         // Обработка ошибок поиска
         function showSearchError(message) {
             const resultsContainer = document.getElementById('searchResults');
@@ -1155,14 +966,12 @@
                 </div>
             `;
         }
-
         // Закрытие подсказок при клике вне поля поиска
         document.addEventListener('click', (e) => {
             if (e.target !== searchInput) {
                 suggestionsContainer.style.display = 'none';
             }
         });
-
         // Экранирование HTML
         function escapeHtml(unsafe) {
             return unsafe

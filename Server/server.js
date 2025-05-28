@@ -1232,7 +1232,194 @@ app.get('/api/product/:id/specs', async (req, res) => {
         db.end();
     }
 });
+// Добавление товара в избранное
+app.post('/api/wishlist/add', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { product_id } = req.body;
+    const userId = req.user.userId;
 
+    // Проверяем существование товара
+    const [product] = await db.query(
+      'SELECT 1 FROM products WHERE product_id = ?',
+      [product_id]
+    );
+
+    if (product.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Товар не найден' 
+      });
+    }
+
+    // Проверяем, не добавлен ли уже товар
+    const [existing] = await db.query(
+      'SELECT 1 FROM wishlist WHERE user_id = ? AND product_id = ?',
+      [userId, product_id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({ 
+        success: false, 
+        error: 'Товар уже в избранном' 
+      });
+    }
+
+    // Добавляем товар в избранное
+    await db.query(
+      'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)',
+      [userId, product_id]
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Товар добавлен в избранное' 
+    });
+  } catch (err) {
+    console.error('Ошибка добавления в избранное:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера' 
+    });
+  } finally {
+    db.end();
+  }
+});
+// Проверка наличия товара в избранном
+app.get('/api/wishlist/check', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { product_id } = req.query;
+    const userId = req.user.userId;
+
+    const [result] = await db.query(
+      'SELECT wishlist_id FROM wishlist WHERE user_id = ? AND product_id = ?',
+      [userId, product_id]
+    );
+
+    res.json({ 
+      success: true, 
+      inWishlist: result.length > 0 
+    });
+  } catch (err) {
+    console.error('Ошибка проверки избранного:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера' 
+    });
+  } finally {
+    db.end();
+  }
+});
+// Получение списка избранных товаров
+app.get('/api/wishlist', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const userId = req.user.userId;
+    
+    const [items] = await db.query(`
+      SELECT 
+        p.product_id,
+        p.product_name,
+        p.price,
+        p.rating,
+        p.main_image
+      FROM wishlist w
+      JOIN products p ON w.product_id = p.product_id
+      WHERE w.user_id = ?
+    `, [userId]);
+
+    res.json({ success: true, items });
+  } catch (err) {
+    console.error('Ошибка получения избранного:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  } finally {
+    db.end();
+  }
+});
+
+// Удаление товара из избранного
+app.delete('/api/wishlist/remove/:productId', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const { productId } = req.params;
+    const userId = req.user.userId;
+
+    const [result] = await db.query(
+      'DELETE FROM wishlist WHERE user_id = ? AND product_id = ?',
+      [userId, productId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Товар не найден в избранном' 
+      });
+    }
+
+    res.json({ success: true, message: 'Товар удален из избранного' });
+  } catch (err) {
+    console.error('Ошибка удаления из избранного:', err);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  } finally {
+    db.end();
+  }
+});
+// Получение заказов пользователя с их содержимым
+app.get('/api/orders', authenticateJWT, async (req, res) => {
+  const db = await createDbConnection();
+  try {
+    const userId = req.user.userId;
+    
+    // Получаем список заказов пользователя
+    const [orders] = await db.query(`
+      SELECT 
+        id,
+        total_amount,
+        status,
+        DATE_FORMAT(created_at, '%d.%m.%Y %H:%i') as formatted_date
+      FROM orders
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+    `, [userId]);
+
+    // Для каждого заказа получаем его содержимое
+    const ordersWithItems = await Promise.all(orders.map(async (order) => {
+      const [items] = await db.query(`
+        SELECT 
+          oi.product_id,
+          oi.product_name,
+          oi.price,
+          oi.quantity,
+          p.main_image
+        FROM order_items oi
+        LEFT JOIN products p ON oi.product_id = p.product_id
+        WHERE oi.order_id = ?
+      `, [order.id]);
+      
+      return {
+        ...order,
+        items: items.map(item => ({
+          ...item,
+          total: item.price * item.quantity
+        }))
+      };
+    }));
+
+    res.json({ 
+      success: true, 
+      orders: ordersWithItems 
+    });
+  } catch (err) {
+    console.error('Ошибка получения заказов:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Ошибка сервера при получении заказов' 
+    });
+  } finally {
+    db.end();
+  }
+});
 // Обработка 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Не найдено' });

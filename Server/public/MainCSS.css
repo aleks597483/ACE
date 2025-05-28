@@ -40,6 +40,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 1920px;
 }
 .menu {
         font-size: 32px;
@@ -49,7 +50,6 @@ header {
         text-decoration: none;
         display: flex;
         justify-content: space-between; /* Равномерное распределение */
-        flex-grow: 1; /* Занимает все доступное пространство */
         gap: 90px; /* Фиксированный отступ между элементами */
         margin: 5px 5px 0px 0px auto; /* Центрирование */
         max-width: 1200px; /* Максимальная ширина (настройте под ваш дизайн) */
@@ -301,7 +301,8 @@ header {
         background: none;
         border: none;
         cursor: pointer;
-        padding: 10px;
+        margin: 5px;
+        padding: 5px;
         border-radius: 50%;
         transition: background-color 0.3s;
     }
@@ -935,16 +936,6 @@ header {
     margin-top: 5px;
     display: inline-block;
 }
-.added-to-compare {
-    background-color: #4CAF50;
-    border-color: #4CAF50;
-}
-/* Стили для страницы сравнения */
-.compare-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
 .category-selector {
   position: relative;
   display: inline-block;
@@ -981,12 +972,39 @@ header {
 .dropdown-item:hover {
   background-color: #f1f1f1;
 }
+.added-to-compare {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+.wishlist-header {
+    margin: 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.wishlist-empty {
+    text-align: center;
+    padding: 50px 0;
+    color: #666;
+}
+.remove-from-wishlist {
+    float: right;
+    background: none;
+    border: none;
+    color: #ff0000;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px;
+}
+.remove-from-wishlist:hover {
+    text-decoration: underline;
+}
 .compare-container {
     position: relative;
     width: 840px;
     overflow-x: auto;
     min-height: 600px;
     padding-bottom: 20px;
+    margin: 20px auto;
 }
 .compare-table {
     width: auto;
@@ -1065,7 +1083,6 @@ header {
 .compare-table::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
-/* Стили для вкладок товара */
 .product-tabs {
     margin-top: 30px;
     border: 1px solid #ddd;
@@ -1097,7 +1114,7 @@ header {
     left: 0;
     width: 100%;
     height: 2px;
-    background-color: #4CAF50;
+    background-color: #B71FED;
 }
 .product-tabs .tab-content {
     display: none;
@@ -1269,4 +1286,175 @@ header {
     font-weight: 600;
     color: #555;
     width: 40%;
+}
+.in-wishlist {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+.text-container {
+    width: 840px;
+    height: 300px;
+    border: #ddd 1px solid;
+    margin: 20px 0px;
+}
+.text-info {
+    margin: 20px;
+}
+.text-info h3 {
+    margin: 10px 0px;
+    font-weight: 600;
+    font-size: 20px;
+}
+.text-info h4 {
+    margin: 10px 0px;
+    font-weight: 200;
+    font-size: 16px;
+}
+.orders-container {
+    margin-top: 20px;
+}
+.order {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.order-items {
+    margin-top: 10px;
+}
+.order-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+.order-item:last-child {
+    border-bottom: none;
+}
+.order-item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-right: 15px;
+}
+.order-item-info {
+    flex-grow: 1;
+}
+.order-item-price {
+    min-width: 100px;
+    text-align: right;
+}
+.no-orders {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+.tab-buttons {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+.tab-button {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-bottom: 2px solid transparent;
+}
+.tab-button.active {
+    border-bottom: 2px solid #B71FED;
+    color: #B71FED;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+footer {
+    justify-content: space-between; /* Равномерное распределение */
+    margin: 5px 5px 0px 0px auto; /* Центрирование */
+    max-width: 1920px; /* Максимальная ширина (настройте под ваш дизайн) */
+}
+.site-footer {
+    background-color: #2e2e2e;
+    color: #ecf0f1;
+    padding: 40px 0 20px;
+    margin-top: 40px;
+}
+.footer-container {
+    justify-content: space-between;
+    display: flex;
+    max-width: 1000px;
+    height: 210px;
+    margin: 0px auto;
+    padding: 0px 20px;
+    flex-wrap: wrap;
+}
+.footer-section {
+    flex: 1;
+    min-width: 200px;
+    max-width: 200px;
+    margin-bottom: 20px;
+    padding: 0 15px;
+}
+.footer-section h4 {
+    color: #B71FED;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+.footer-section ul li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+.footer-section a {
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.footer-section a:hover {
+    color: #f39c12;
+}
+.footer-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+.social-links {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.social-links img {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s;
+}
+.social-links img:hover {
+    transform: scale(1.1);
+}
+.footer-logo img {
+    width: 100px;
+    height: auto;
+}
+.footer-bottom {
+    text-align: center;
+    padding-top: 10px;
+    border-top: 1px solid #8A8282;
+    margin-top: 10px;
+    font-size: 14px;
 }

@@ -18,9 +18,9 @@
                     <img src="pictures\Telephone.png" alt="Telephone" class="telephone-icon">
                     8(952)&nbsp;570-76-95
                 </div>
-                <a href="">Самовывоз</a>
-                <a href="">Доставка</a>
-                <a href="">Оплата</a>
+                <a href="PickupHTML.html">Самовывоз</a>
+                <a href="DeliveryHTML.html">Доставка</a>
+                <a href="PaymentHTML.html">Оплата</a>
                 <div id="authSection">
                     <a href="#" id="authLink" onclick="event.preventDefault(); openModal();">Вход</a>
                 </div>
@@ -111,39 +111,81 @@
             </div>
         </div>
     </div>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Меню</h4>
+                <ul>
+                    <li><a href="WishlistHTML.html">Закладки</a></li>
+                    <li><a href="CompareHTML.html">Сравнение</a></li>
+                    <li><a href="BasketHTML.html">Корзина</a></li>
+                    <li><a href="PickupHTML.html">Самовывоз</a></li>
+                    <li><a href="DeliveryHTML.html">Доставка</a></li>
+                    <li><a href="PaymentHTML.html">Оплата</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Контакты</h4>
+                <ul>
+                    <li>
+                        <img src="pictures/Telephone_black.png" alt="Телефон" class="footer-icon">
+                        8(952) 570-76-95
+                    </li>
+                    <li>
+                        <img src="pictures/Email.png" alt="Email" class="footer-icon">
+                        info@4ce-store.ru
+                    </li>
+                    <li>
+                        <img src="pictures/Location.png" alt="Адрес" class="footer-icon">
+                        г. Ростов-на-Дону, ул. Тургеневская, 10/6
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Социальные сети</h4>
+                <div class="social-links">
+                    <a href="https://vk.com/pkcu_college"><img src="pictures/VK.png" alt="VK"></a>
+                    <a href="https://t.me/rksi_ru"><img src="pictures/Telegram.png" alt="Telegram"></a>
+                    <a href="https://vk.com/copprostov"><img src="pictures/YouTube.png" alt="YouTube"></a>
+                </div>
+                <div class="footer-logo">
+                    <a href="/MainHTML.html">
+                        <img src="pictures/4CE.png" alt="4CE Магазин">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 4CE Магазин игровых товаров. Все права защищены.</p>
+        </div>
+    </footer>
     <script>
         // Глобальные переменные
         let currentUser = null;
-
         // DOM элементы
         const modal = document.getElementById('modal');
         const authSection = document.getElementById('authSection');
         const authLink = document.getElementById('authLink');
-
         // Функции модального окна
         function openModal() {
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
-
         function closeModal() {
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
             resetForms();
         }
-
         function showTab(tabId, event = null) {
             if (event) {
                 event.preventDefault();
             }
-
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
             });
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-
             document.getElementById(tabId).style.display = 'block';
             if (event) {
             event.currentTarget.classList.add('active');
@@ -151,17 +193,14 @@
                 document.querySelector(`.tab-btn[onclick*="${tabId}"]`).classList.add('active');
             }
         }
-
         function resetForms() {
             document.getElementById('loginForm').reset();
             document.getElementById('registerForm').reset();
         }
-
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
             input.type = input.type === 'password' ? 'text' : 'password';
         }
-
         // Обновление UI авторизации
         function updateAuthUI(isLoggedIn, userData = null) {
             if (isLoggedIn && userData) {
@@ -180,14 +219,12 @@
                 `;
             }
         }
-
         // Выход из системы
         function logout() {
             localStorage.removeItem('token');
             updateAuthUI(false);
             window.location.reload();
         }
-
         // Проверка авторизации при загрузке
         async function checkAuth() {
             const token = localStorage.getItem('token');
@@ -195,7 +232,6 @@
                 updateAuthUI(false);
                 return;
             }
-
             try {
                 const response = await fetch('http://localhost:3000/get-user', {
                     headers: {
@@ -203,7 +239,6 @@
                         'Content-Type': 'application/json'
                     }
                 });
-
                 if (!response.ok) {
                     if (response.status === 403) {
                         localStorage.removeItem('token');
@@ -211,7 +246,6 @@
                     }
                     throw new Error('Ошибка сервера');
                 }
-
                 const userData = await response.json();
                 updateAuthUI(true, userData);
             } catch (error) {
@@ -220,19 +254,15 @@
                 updateAuthUI(false);
             }
         }
-
         // Обработка формы входа
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
-
             if (!email || !password) {
                 alert('Заполните все поля');
                 return;
             }
-
             try {
                 const response = await fetch('http://localhost:3000/login', {
                     method: 'POST',
@@ -241,13 +271,10 @@
                     },
                     body: JSON.stringify({ email, password })
                 });
-
                 const data = await response.json();
-
                 if (!response.ok) {
                     throw new Error(data.error || 'Ошибка входа');
                 }
-
                 localStorage.setItem('token', data.token);
                 updateAuthUI(true, { username: data.username });
                 closeModal();
@@ -256,28 +283,23 @@
                 alert(error.message);
             }
         });
-
         // Обработка формы регистрации
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const userData = {
                 username: document.getElementById('regUsername').value.trim(),
                 subname: document.getElementById('regSubname').value.trim(),
                 email: document.getElementById('regEmail').value.trim(),
                 password: document.getElementById('regPassword').value
             };
-
             if (!userData.username || !userData.subname || !userData.email || !userData.password) {
                 alert('Заполните все поля');
                 return;
             }
-
             if (userData.password.length < 8) {
                 alert('Пароль должен содержать минимум 8 символов');
                 return;
             }
-
             try {
                 const response = await fetch('http://localhost:3000/register', {
                     method: 'POST',
@@ -286,13 +308,10 @@
                     },
                     body: JSON.stringify(userData)
                 });
-
                 const data = await response.json();
-
                 if (!response.ok) {
                     throw new Error(data.error || 'Ошибка регистрации');
                 }
-
                 alert('Регистрация успешна! Теперь вы можете войти');
                 showTab('login');
                 document.getElementById('loginEmail').value = userData.email;
@@ -302,7 +321,6 @@
                 alert(error.message);
             }
         });
-
         // Закрытие модального окна при клике вне его
         window.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -329,7 +347,6 @@
             try {
                 const response = await fetch('/api/categories');
                 const data = await response.json();
-                
                 if (data.success) {
                     displayCategories(data.categories);
                 } else {
@@ -339,37 +356,29 @@
                 console.error('Ошибка загрузки категорий:', error);
             }
         }
-
         function displayCategories(categories) {
             const container = document.getElementById('categories-list');
             const groupedCategories = groupCategoriesByParent(categories);
-            
             // Добавляем корневые категории
             if (groupedCategories[null]) {
                 groupedCategories[null].forEach(category => {
                     const li = createCategoryElement(category);
-                    
                     // Добавляем подкатегории, если они есть
                     if (groupedCategories[category.category_id]) {
                         const subUl = document.createElement('ul');
                         subUl.className = 'subcategories';
-                        
                         groupedCategories[category.category_id].forEach(subCategory => {
                             subUl.appendChild(createCategoryElement(subCategory));
                         });
-                        
                         li.appendChild(subUl);
                     }
-                    
                     container.appendChild(li);
                 });
             }
         }
-
         function groupCategoriesByParent(categories) {
             // Сначала сортируем категории по category_id
             const sortedCategories = [...categories].sort((a, b) => a.category_id - b.category_id);
-            
             return sortedCategories.reduce((acc, category) => {
                 const parentId = category.parent_category_id;
                 if (!acc[parentId]) {
@@ -379,40 +388,33 @@
                 return acc;
             }, {});
         }
-
         function createCategoryElement(category) {
             const li = document.createElement('li');
             const a = document.createElement('a');
             a.href = `/MainHTML.html?category=${category.category_id}`;
-            
             // Используем иконку из базы данных или дефолтную
             const iconSrc = category.icon_class ? 
                 `pictures/${category.icon_class}.png` : 
                 'pictures/default-icon.png';
-            
             a.innerHTML = `
                 <img src="${iconSrc}" class="catalog-icon">
                 ${category.category_name}
                 <img src="pictures/Vector 4.png" class="vector-icon">
             `;
-
             a.addEventListener('click', async (e) => {
                 sessionStorage.setItem('lastCategoryId', category.category_id);
                 sessionStorage.setItem('lastCategory', category.category_name);
                 // Переходим на страницу
                 window.location.href = `/MainHTML.html?category=${category.category_id}`;
             });
-            
             li.appendChild(a);
             return li;
         }
-
         // Инициализируем загрузку категорий при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('resetSearch').style.display = 'none';
             checkAuth();
             loadCategories();
-
             const backButton = document.querySelector('.back-to-brands');
             if (backButton) {
                 backButton.style.display = 'none';
@@ -429,12 +431,10 @@
     <script>
         // Глобальная переменная для хранения истории
         let breadcrumbHistory = [];
-
         // Инициализация хлебных крошек
         function initBreadcrumbs() {
             // Загружаем историю из sessionStorage или создаем новую
             breadcrumbHistory = JSON.parse(sessionStorage.getItem('breadcrumbs')) || [];
-            
             // Если есть сохраненная категория (для страницы товара)
             const lastCategory = sessionStorage.getItem('lastCategory');
             if (lastCategory && window.location.pathname.includes('product.html')) {
@@ -450,36 +450,29 @@
                     sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbHistory));
                 }
             }
-            
             updateBreadcrumbs();
         }
-
         // Обновление отображения крошек
         function updateBreadcrumbs() {
             const breadcrumbsContainer = document.getElementById('breadcrumbs');
             if (!breadcrumbsContainer) return;
-            
             // Очищаем все, кроме первого элемента (Главная)
             while (breadcrumbsContainer.children.length > 1) {
                 breadcrumbsContainer.removeChild(breadcrumbsContainer.lastChild);
             }
-
             breadcrumbHistory.forEach((item, index) => {
                 // Пропускаем главную страницу, так как она уже есть
                 if (item.url === '/MainHTML.html') return;
-
                 // Создаем разделитель
                 const separator = document.createElement('span');
                 separator.textContent = ' » ';
                 breadcrumbsContainer.appendChild(separator);
-
                 // Создаем элемент крошки
                 const crumb = document.createElement('div');
                 crumb.className = 'breadcrumb-item';
                 crumb.setAttribute('itemprop', 'itemListElement');
                 crumb.setAttribute('itemscope', '');
                 crumb.setAttribute('itemtype', 'https://schema.org/ListItem');
-
                 // Если это последний элемент и мы не на главной - делаем его неактивной ссылкой
                 if (index === breadcrumbHistory.length - 1 && window.location.pathname !== '/MainHTML.html') {
                     crumb.innerHTML = `
@@ -496,32 +489,26 @@
                         <meta itemprop="position" content="${index + 2}">
                     `;
                 }
-
                 breadcrumbsContainer.appendChild(crumb);
             });
         }
-
         // Добавление новой страницы в историю
         function navigateTo(title, url) {
             // Пропускаем пустые или невалидные URL
             if (!url || url === '#' || url.startsWith('javascript:')) {
                 return;
             }
-
             // Если это главная страница - очищаем историю
             if (url === '/MainHTML.html') {
                 breadcrumbHistory = [];
             }
-
             // Не добавляем текущую страницу снова
             if (breadcrumbHistory.length > 0) {
                 const lastItem = breadcrumbHistory[breadcrumbHistory.length - 1];
                 if (lastItem.url === url) return;
             }
-
             // Проверяем, есть ли такая страница в истории
             const existingIndex = breadcrumbHistory.findIndex(item => item.url === url);
-            
             // Если страница уже была в истории - это навигация "назад"
             if (existingIndex >= 0) {
                 breadcrumbHistory = breadcrumbHistory.slice(0, existingIndex + 1);
@@ -536,18 +523,15 @@
                     breadcrumbHistory = breadcrumbHistory.slice(-MAX_HISTORY);
                 }
             }
-
             // Сохраняем и обновляем отображение
             sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbHistory));
             updateBreadcrumbs();
         }
-
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             // Добавляем текущую страницу в историю
             const currentPageTitle = document.title;
             const currentUrl = window.location.pathname + window.location.search;
-            
             // Для страницы товара добавляем его название
             if (window.location.pathname.includes('product.html')) {
                 const productName = document.getElementById('product-name')?.textContent;
@@ -564,46 +548,40 @@
     <script>
         // Загрузка категорий для сравнения
         async function loadCompareCategories() {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                openModal();
-                alert('Для сравнения товаров необходимо войти в систему');
-                return;
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    openModal();
+                    alert('Для сравнения товаров необходимо войти в систему');
+                    return;
+                }
+                const response = await fetch('/api/compare/categories', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                throw new Error(data.error || 'Ошибка загрузки категорий');
+                }
+                const dropdown = document.getElementById('categoryDropdown');
+                dropdown.innerHTML = '';
+                if (data.categories.length === 0) {
+                    dropdown.innerHTML = '<div class="dropdown-item">Нет товаров для сравнения</div>';
+                    return;
+                }
+                data.categories.forEach(category => {
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.textContent = category.category_name;
+                    item.addEventListener('click', () => loadCompareProducts(category.category_id));
+                    dropdown.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert(error.message);
             }
-
-            const response = await fetch('/api/compare/categories', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-            });
-            const data = await response.json();
-
-            if (!response.ok) {
-            throw new Error(data.error || 'Ошибка загрузки категорий');
-            }
-
-            const dropdown = document.getElementById('categoryDropdown');
-            dropdown.innerHTML = '';
-
-            if (data.categories.length === 0) {
-            dropdown.innerHTML = '<div class="dropdown-item">Нет товаров для сравнения</div>';
-            return;
-            }
-
-            data.categories.forEach(category => {
-            const item = document.createElement('div');
-            item.className = 'dropdown-item';
-            item.textContent = category.category_name;
-            item.addEventListener('click', () => loadCompareProducts(category.category_id));
-            dropdown.appendChild(item);
-            });
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert(error.message);
         }
-        }
-
         // Загрузка товаров и характеристик для сравнения
         async function loadCompareProducts(categoryId) {
         try {
@@ -612,30 +590,25 @@
             window.location.href = '/';
             return;
             }
-
             const response = await fetch(`/api/compare/products/${categoryId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
             });
             const data = await response.json();
-
             if (!response.ok) {
             throw new Error(data.error || 'Ошибка загрузки данных для сравнения');
             }
-
             renderComparisonTable(data);
         } catch (error) {
             console.error('Ошибка:', error);
             alert(error.message);
         }
         }
-
         // Отрисовка таблицы сравнения
         function renderComparisonTable(data) {
             const container = document.getElementById('compareResults');
             container.innerHTML = '';
-
             if (data.products.length === 0) {
                 container.innerHTML = '<p>Нет товаров для сравнения</p>';
                 return;
@@ -643,16 +616,13 @@
             // Создаем обертку для таблицы с прокруткой
             const tableWrapper = document.createElement('div');
             tableWrapper.className = 'table-wrapper';
-
             // Создаем таблицу
             const table = document.createElement('table');
             table.className = 'compare-table';
-
             // 1. Заголовок с названиями товаров
             const headerRow = document.createElement('tr');
             const emptyHeader = document.createElement('th');
             headerRow.appendChild(emptyHeader);
-
             data.products.forEach(product => {
                 const th = document.createElement('th');
                 th.innerHTML = `
@@ -666,25 +636,21 @@
                 headerRow.appendChild(th);
             });
             table.appendChild(headerRow);
-
             // 2. Строки с характеристиками
             data.specKeys.forEach(specKey => {
                 const row = document.createElement('tr');
                 const specNameCell = document.createElement('td');
                 specNameCell.textContent = formatSpecName(specKey);
                 row.appendChild(specNameCell);
-
                 data.products.forEach(product => {
                     const specValueCell = document.createElement('td');
                     specValueCell.textContent = product.specs[specKey] || '—';
                     row.appendChild(specValueCell);
                 });
-
                 table.appendChild(row);
             });
             tableWrapper.appendChild(table);
             container.appendChild(table);
-
             document.querySelectorAll('.remove-compare-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const productId = e.target.getAttribute('data-product-id');
@@ -755,14 +721,12 @@
                     .replace(/_/g, ' ')
                     .replace(/\b\w/g, l => l.toUpperCase());
                 }
-
             // Инициализация при загрузке страницы
             document.addEventListener('DOMContentLoaded', () => {
             // Обработчик выпадающего списка
             document.getElementById('categoryDropdownBtn').addEventListener('click', function() {
                 document.getElementById('categoryDropdown').classList.toggle('show');
             });
-
             // Закрытие выпадающего списка при клике вне его
             window.addEventListener('click', function(e) {
                 if (!e.target.matches('#categoryDropdownBtn')) {
@@ -772,7 +736,6 @@
                 }
                 }
             });
-
             // Загружаем категории для сравнения
             loadCompareCategories();
             });
@@ -782,9 +745,7 @@
         document.querySelector('.poisk_tovary').addEventListener('submit', async function(e) {
             e.preventDefault();
             const query = this.query.value.trim();
-            
             document.getElementById('searchResults').style.display = 'block';
-
             if (query) {
                 try {
                     const response = await fetch(`http://localhost:3000/api/search?query=${encodeURIComponent(query)}`);
@@ -801,32 +762,25 @@
                 }
             }
         });
-
         document.getElementById('resetSearch').addEventListener('click', function() {
             // Очищаем поле ввода
             document.querySelector('.poisk_tovary input').value = '';
-            
             // Скрываем результаты поиска
             document.getElementById('searchResults').innerHTML = '';
             document.getElementById('searchResults').style.display = 'none';
-            
             // Показываем стандартные секции (новинки, топы)
             document.getElementById('new-products').style.display = 'block';
             document.getElementById('top-products').style.display = 'block';
             document.getElementById('category-products').style.display = 'none';
-            
             // Скрываем подсказки автодополнения, если они есть
             suggestionsContainer.style.display = 'none';
         });
-
         function initRatings() {
             document.querySelectorAll('.rating-stars').forEach(ratingContainer => {
                 const rating = parseFloat(ratingContainer.getAttribute('data-rating')) || 0;
                 const stars = Array.from(ratingContainer.querySelectorAll('.star'));
-
                 // Сбрасываем все звезды
                 stars.forEach(star => star.classList.remove('active', 'half-active'));
-
                 // Подсвечиваем слева направо
                 stars.forEach((star, index) => {
                     if (index < rating) {
@@ -835,7 +789,6 @@
                         star.classList.add('half-active');
                     }
                 });
-
                 // Обработка наведения
                 stars.forEach((star, index) => {
                     star.addEventListener('mouseenter', () => {
@@ -844,28 +797,23 @@
                             s.classList.toggle('hover', i <= index);
                         });
                     });
-
                     star.addEventListener('mouseleave', () => {
                         stars.forEach(s => s.classList.remove('hover'));
                     });
                 });
             });
         }
-
         // Автодополнение
         const searchInput = document.querySelector('.poisk_tovary input[name="query"]');
         const resetBtn = document.getElementById('resetSearch');
         const suggestionsContainer = document.createElement('div');
         suggestionsContainer.className = 'search-suggestions';
         searchInput.parentNode.insertBefore(suggestionsContainer, searchInput.nextSibling);
-
         searchInput.addEventListener('input', function() {
             resetBtn.style.display = this.value.trim() ? 'block' : 'none';
         });
-
         searchInput.addEventListener('input', async function() {
             const query = this.value.trim();
-            
             if (query.length >= 2) {
                 try {
                     const response = await fetch(`/api/search/suggest?query=${encodeURIComponent(query)}`);
@@ -878,11 +826,9 @@
                 suggestionsContainer.style.display = 'none';
             }
         });
-
         // Отображение результатов поиска
         function displaySearchResults(products, query) {
             const resultsContainer = document.getElementById('searchResults');
-            
             if (!products || products.length === 0) {
                 resultsContainer.innerHTML = `
                     <div class="no-results">
@@ -891,7 +837,6 @@
                 `;
                 return;
             }
-            
             resultsContainer.innerHTML = `
                 <div class="search-header">
                     <h3>Результаты поиска: "${escapeHtml(query)}"</h3>
@@ -917,24 +862,19 @@
                     `).join('')}
                 </div>
             `;
-
             // Инициализация рейтинга для новых товаров
             initRatings();
         }
-
         // Показ подсказок автодополнения
         function showSuggestions(suggestions) {
             if (suggestions.length === 0) {
                 suggestionsContainer.style.display = 'none';
                 return;
             }
-            
             suggestionsContainer.innerHTML = suggestions.map(item => `
                 <div class="suggestion-item">${escapeHtml(item)}</div>
             `).join('');
-            
             suggestionsContainer.style.display = 'block';
-            
             // Обработка клика по подсказке
             suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
                 item.addEventListener('click', () => {
@@ -944,31 +884,25 @@
                 });
             });
         }
-
         async function loadProductsByCategory(categoryId, categoryName) {
             try {
                 // Сохраняем ID и название категории
                 sessionStorage.setItem('lastCategoryId', categoryId);
                 sessionStorage.setItem('lastCategory', categoryName);
-
                 // Проверяем, является ли категория "Бренды"
                 if (categoryName.toLowerCase() === 'бренды') {
                     await loadBrands();
                     return;
                 }
-                
                 // Показываем секцию с товарами категории
                 document.getElementById('category-products').style.display = 'block';
                 document.getElementById('category-title').textContent = categoryName;
-
                 // Скрываем другие секции (новинки, лидеры продаж)
                 document.getElementById('new-products').style.display = 'none';
                 document.getElementById('top-products').style.display = 'none';
-
                 // Загрузка товаров с сервера
                 const response = await fetch(`/api/products/category/${categoryId}`);
                 const data = await response.json();
-
                 if (data.success && data.products.length > 0) {
                     displayProducts(data.products, 'category-products-grid');
                 } else {
@@ -981,8 +915,6 @@
                     '<p>Ошибка загрузки товаров</p>';
             }
         }
-
-        
         // Обработка ошибок поиска
         function showSearchError(message) {
             const resultsContainer = document.getElementById('searchResults');
@@ -992,14 +924,12 @@
                 </div>
             `;
         }
-
         // Закрытие подсказок при клике вне поля поиска
         document.addEventListener('click', (e) => {
             if (e.target !== searchInput) {
                 suggestionsContainer.style.display = 'none';
             }
         });
-
         // Экранирование HTML
         function escapeHtml(unsafe) {
             return unsafe
