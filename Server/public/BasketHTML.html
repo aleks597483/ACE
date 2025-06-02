@@ -187,7 +187,7 @@
         const modal = document.getElementById('modal');
         const authSection = document.getElementById('authSection');
         const authLink = document.getElementById('authLink');
-
+        const AuthRequired = document.getElementById('basket-auth-required');
         // Функции модального окна
         function openModal() {
             modal.style.display = 'block';
@@ -241,6 +241,7 @@
                     <a href="#" id="logoutBtn" class="logout-btn">Выйти</a>
                 `;
                 document.getElementById('logoutBtn').addEventListener('click', logout);
+                loadCart();
             } else {
                 currentUser = null;
                 authSection.innerHTML = `

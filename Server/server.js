@@ -300,16 +300,17 @@ app.get('/api/search', async (req, res) => {
             MATCH(p.product_name, p.description) AGAINST(? IN BOOLEAN MODE) AS relevance
         FROM products p
         WHERE MATCH(p.product_name, p.description) AGAINST(? IN BOOLEAN MODE)
+        OR p.product_code LIKE ?
         ORDER BY relevance DESC
         LIMIT ? OFFSET ?
-    `, [query, query, parseInt(limit), parseInt(offset)]);
+    `, [query, query, `%${query}%`, parseInt(limit), parseInt(offset)]);
 
     // Получаем общее количество результатов
     const [[{ total }]] = await db.query(`
       SELECT COUNT(*) as total
       FROM products
       WHERE MATCH(product_name, description) AGAINST(? IN BOOLEAN MODE)
-    `, [query]);
+    `, [query, `%${query}%`]);
 
     db.end();
 
@@ -810,11 +811,14 @@ app.post('/api/checkout', authenticateJWT, async (req, res) => {
         [orderId, item.product_id, item.product_name, item.price, item.quantity]
       );
       
-      // Обновляем количество товара на складе
+      // Обновляем количество товара на складе и увеличиваем счетчик продаж
       await db.query(
-        `UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?`,
-        [item.quantity, item.product_id]
-      );
+        `UPDATE products 
+         SET stock_quantity = stock_quantity - ?, 
+             sales_count = IFNULL(sales_count, 0) + ? 
+         WHERE product_id = ?`,
+        [item.quantity, item.quantity, item.product_id]
+      )
     }
 
     // Очищаем корзину

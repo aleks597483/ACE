@@ -6,7 +6,7 @@
 }
 .main {
         max-width: 1165px;
-        margin: 20px 0px 20px 300px;
+        margin: 20px 0px 20px 378px;
         display: flex;
     }
     .main h4 {
@@ -49,17 +49,17 @@ header {
     .top-nav {
         text-decoration: none;
         display: flex;
-        justify-content: space-between; /* Равномерное распределение */
-        gap: 90px; /* Фиксированный отступ между элементами */
-        margin: 5px 5px 0px 0px auto; /* Центрирование */
-        max-width: 1200px; /* Максимальная ширина (настройте под ваш дизайн) */
-        padding: 0px; /* Отступы по бокам */
+        justify-content: space-between;
+        gap: 80px;
+        margin: 5px 5px 0px 378px;
+        max-width: 1200px;
+        padding: 0px;
     }
     .top-nav a, #authSection {
         color: #8A8282;
         text-decoration: none;
-        white-space: nowrap; /* Запрет переноса текста */
-        flex-shrink: 0; /* Запрет сжатия элементов */
+        white-space: nowrap;
+        flex-shrink: 0;
     }
     .top-nav a:hover {
         color: #ffffff;
@@ -1381,9 +1381,9 @@ header {
     display: block;
 }
 footer {
-    justify-content: space-between; /* Равномерное распределение */
-    margin: 5px 5px 0px 0px auto; /* Центрирование */
-    max-width: 1920px; /* Максимальная ширина (настройте под ваш дизайн) */
+    justify-content: space-between;
+    margin: 5px 5px 0px 0px auto;
+    max-width: 1920px;
 }
 .site-footer {
     background-color: #2e2e2e;

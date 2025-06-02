@@ -537,7 +537,7 @@
                                 if (!hasBrand) {
                                     breadcrumbHistory.push({
                                         title: brand.brand_name,
-                                        url: `/MainHTML.html?brand=${brand.brand_id}`
+                                        url: `/MainHTML.html?category=16/brand=${brand.brand_id}`
                                     });
                                 }
                             }
@@ -743,7 +743,14 @@
             // Устанавливаем первое изображение как основное
             mainImage.src = images[0].image_url;
             mainImage.style.cursor = 'zoom-in';
-            mainImage.addEventListener('click', () => openFullscreen(images[0].image_url));
+            mainImage.addEventListener('click', function() {
+                const activeThumbnail = document.querySelector('.thumbnail.active');
+                if (activeThumbnail) {
+                    openFullscreen(activeThumbnail.src);
+                } else {
+                    openFullscreen(images[0].image_url);
+                }
+            });
             // Очищаем контейнер миниатюр
             thumbnailsContainer.innerHTML = '';
             let isZoomed = false;
@@ -1453,7 +1460,7 @@
             <div class="products-grid">
                 ${products.map(product => `
                     <div class="product">
-                        <a href="#">
+                        <a href="/product.html?id=${product.product_id}">
                             <img src="${escapeHtml(product.main_image || 'pictures/no-image.png')}" 
                                 alt="${escapeHtml(product.product_name)}">
                             <div class="product-title">${escapeHtml(product.product_name)}</div>
