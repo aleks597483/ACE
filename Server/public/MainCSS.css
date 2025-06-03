@@ -1403,7 +1403,7 @@ footer {
 .footer-section {
     flex: 1;
     min-width: 200px;
-    max-width: 200px;
+    max-width: 250px;
     margin-bottom: 20px;
     padding: 0 15px;
 }
